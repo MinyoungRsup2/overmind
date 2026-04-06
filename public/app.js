@@ -55,7 +55,7 @@
     COLOR_TO_INDEX[cr + ',' + cg + ',' + cb] = AREA_DEFS[d].index;
   }
 
-  // Mutable AREAS array — starts with hardcoded fallback, replaced once mask loads
+  // Mutable AREAS array — battle mode: index 6 is the marine rally point (bottom-left)
   var AREAS = [
     { x: 15,  y: 8,   w: 190, h: 82,  id: 'mountain',      label: 'Mountain' },
     { x: 115, y: 88,  w: 170, h: 82,  id: 'cave',           label: 'Cave' },
@@ -63,7 +63,7 @@
     { x: 275, y: 8,   w: 140, h: 82,  id: 'ruin',           label: 'Ruins' },
     { x: 10,  y: 92,  w: 100, h: 78,  id: 'rough_terrain',  label: 'Hard Terrain' },
     { x: 300, y: 94,  w: 160, h: 96,  id: 'grassland',      label: 'Grassland' },
-    { x: 120, y: 175, w: 180, h: 60,  id: 'urban',          label: 'Urban' },
+    { x: 20,  y: 180, w: 140, h: 80,  id: 'urban',          label: 'Marine Rally' },
     { x: 55,  y: 240, w: 380, h: 28,  id: 'waters_edge',    label: "Water's Edge" },
     { x: 0,   y: 270, w: 480, h: 50,  id: 'sea',            label: 'Sea' },
   ];
@@ -113,6 +113,7 @@
 
       // Update AREAS with mask-derived bounding boxes
       for (var i = 0; i < AREA_DEFS.length; i++) {
+        if (i === 6) continue; // Skip — index 6 is hardcoded marine rally point
         if (coords[i].length > 0) {
           AREAS[i] = {
             x: minX[i], y: minY[i],
@@ -122,6 +123,7 @@
         }
       }
 
+      coords[6] = []; // Force fallback to bounding-box for marine rally
       areaValidCoords = coords;
       areaMaskReady = true;
 
@@ -630,24 +632,69 @@
     }
   };
 
+  // ── SC Click effects ──
+  var clickEffects = [];
+
+  function spawnClickEffect(screenX, screenY) {
+    clickEffects.push({
+      x: screenX,
+      y: screenY,
+      startTime: Date.now(),
+      duration: 400
+    });
+  }
+
+  function drawClickEffects() {
+    if (clickEffects.length === 0) return;
+    var now = Date.now();
+    var canvas = document.getElementById('office-canvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var alive = [];
+    for (var i = 0; i < clickEffects.length; i++) {
+      var fx = clickEffects[i];
+      var elapsed = now - fx.startTime;
+      if (elapsed >= fx.duration) continue;
+      alive.push(fx);
+      var progress = elapsed / fx.duration;
+      var radius = 6 + progress * 16;
+      var alpha = 1.0 - progress;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(96, 255, 64, ' + alpha.toFixed(2) + ')';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(fx.x, fx.y, radius, 0, Math.PI * 2);
+      ctx.stroke();
+      // Inner dot
+      if (progress < 0.3) {
+        ctx.fillStyle = 'rgba(96, 255, 64, ' + (alpha * 0.6).toFixed(2) + ')';
+        ctx.beginPath();
+        ctx.arc(fx.x, fx.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+    clickEffects = alive;
+  }
+
   // ── Battle particle state ──
   var battleState = {
     zerglings: [],        // active zergling particle objects
     pendingSpawns: 0,     // tokens waiting to spawn as zerglings
     lastSpawnTime: 0,
-    spawnRate: 200,        // ms between zergling spawns
-    zerglingSpeed: 0.8,    // pixels per frame at ~60fps
-    maxZerglings: 40,      // cap to prevent lag
+    spawnRate: 300,        // ms between zergling spawns
+    zerglingSpeed: 0.6,    // pixels per frame at ~60fps
+    maxZerglings: 60,      // cap to prevent lag
     marineAttacks: {}      // agentId → { cooldownUntil, attacking, attackFrame, attackStart }
   };
   var lastKnownTokenTotal = 0;
   var MARINE_DRAW_SIZE = 22;
   var ZERGLING_DRAW_SIZE = 20;
   var ZERGLING_DEATH_DRAW_SIZE = 28;
-  var MARINE_ATTACK_DURATION = 700;   // ms for full attack animation
-  var MARINE_ATTACK_COOLDOWN = 300;   // ms cooldown after attack before next kill
+  var MARINE_ATTACK_DURATION = 500;   // ms for full attack animation
+  var MARINE_ATTACK_COOLDOWN = 100;   // ms cooldown after attack before next kill
   var ZERGLING_FRAME_MS = 100;        // ms per animation frame
-  var ZERGLING_KILL_RANGE = 18;       // px distance to trigger kill
+  var ZERGLING_KILL_RANGE = 28;       // px distance to trigger kill
   var TOKENS_PER_ZERGLING = 10000;
 
   // Ensure battle sprite sheets are preloaded early
@@ -1056,22 +1103,19 @@
   }
 
   function getAreaIndex(agent) {
-    // Child agents follow their parent's area
+    // Battle mode: all marines cluster in bottom-left (urban = index 6, x=120 y=175)
+    if (!agent.parentId) {
+      appState.roomAssignments.set(agent.agentId, 6);
+      return 6;
+    }
+    // Subagents follow parent
     if (agent.parentId) {
       const parentEntity = appState.entityById.get(agent.parentId);
       if (parentEntity !== undefined) return parentEntity.roomIndex;
-      const assigned = appState.roomAssignments.get(agent.parentId);
-      if (assigned !== undefined) return assigned;
+      return 6;
     }
     const existing = appState.roomAssignments.get(agent.agentId);
     if (existing !== undefined) {
-      if (!agent.parentId && agent.isPromoCustom) {
-        var desiredPromoArea = desiredAreaIndexForAgent(agent);
-        if (desiredPromoArea >= 0 && desiredPromoArea !== existing) {
-          appState.roomAssignments.set(agent.agentId, desiredPromoArea);
-          return desiredPromoArea;
-        }
-      }
       return existing;
     }
 
@@ -3139,6 +3183,7 @@
 
   function renderBoxList() {
     var boxed = appState.snapshot.boxedAgents || [];
+    if (!boxCountEl || !boxListEl) return;
     boxCountEl.textContent = String(boxed.length);
     boxListEl.innerHTML = renderBoxItems(boxed.slice(-60), {
       compact: true,
@@ -3690,9 +3735,15 @@
 
   function spawnZergling(now, marinePositions) {
     if (marinePositions.length === 0) return null;
-    // Spawn from top-right corner area
-    var spawnX = 350 + Math.random() * 130;
-    var spawnY = Math.random() * 50;
+    // Spawn from top-right corner — spread along a diagonal band
+    var t = Math.random();
+    var spawnX = 300 + Math.random() * 180;
+    var spawnY = -20 - Math.random() * 40;
+    // Some from right edge too
+    if (t > 0.7) {
+      spawnX = 480 + Math.random() * 10;
+      spawnY = 10 + Math.random() * 120;
+    }
     // Pick a random marine as target
     var target = marinePositions[Math.floor(Math.random() * marinePositions.length)];
     return {
@@ -3702,8 +3753,6 @@
       frame: Math.floor(Math.random() * BATTLE_DATA.zergling.movingFrames),
       frameTimer: now,
       speed: BATTLE_DATA.zergling.width > 0 ? (0.6 + Math.random() * 0.4) : 0.8,
-      targetX: target.x,
-      targetY: target.y,
       targetAgentId: target.agentId,
       deathFrame: 0,
       deathTimer: 0
@@ -3730,68 +3779,78 @@
       }
     }
 
-    // Update each zergling
+    // First pass: each marine kills the closest zergling in range
+    for (var m = 0; m < marinePositions.length; m++) {
+      var mp = marinePositions[m];
+      var mAttack = battleState.marineAttacks[mp.agentId];
+      if (!mAttack) {
+        mAttack = { cooldownUntil: 0, attacking: false, attackFrame: 0, attackStart: 0 };
+        battleState.marineAttacks[mp.agentId] = mAttack;
+      }
+
+      // Skip if marine is on cooldown
+      if (mAttack.attacking || now < mAttack.cooldownUntil) continue;
+
+      // Find closest moving zergling in kill range
+      var closestIdx = -1;
+      var closestDist = Infinity;
+      for (var i = 0; i < battleState.zerglings.length; i++) {
+        var zer = battleState.zerglings[i];
+        if (zer.state !== 'moving') continue;
+        var dx = mp.x - zer.x;
+        var dy = mp.y - zer.y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < ZERGLING_KILL_RANGE && dist < closestDist) {
+          closestDist = dist;
+          closestIdx = i;
+        }
+      }
+
+      if (closestIdx >= 0) {
+        // Kill it immediately
+        mAttack.attacking = true;
+        mAttack.attackStart = now;
+        mAttack.attackFrame = 0;
+        battleState.zerglings[closestIdx].state = 'dying';
+        battleState.zerglings[closestIdx].deathFrame = 0;
+        battleState.zerglings[closestIdx].deathTimer = now;
+      }
+    }
+
+    // Second pass: move surviving zerglings, advance death anims, cull dead
     var alive = [];
     for (var i = 0; i < battleState.zerglings.length; i++) {
       var zer = battleState.zerglings[i];
 
       if (zer.state === 'moving') {
-        // Move toward target
-        var dx = zer.targetX - zer.x;
-        var dy = zer.targetY - zer.y;
-        var dist = Math.sqrt(dx * dx + dy * dy);
+        // Fixed diagonal: down-left (matching the zergling moving_downleft sprite)
+        zer.x -= zer.speed * 0.65;
+        zer.y += zer.speed * 0.75;
 
-        if (dist < ZERGLING_KILL_RANGE) {
-          // Check if the target marine can attack
-          var mAttack = battleState.marineAttacks[zer.targetAgentId];
-          if (!mAttack) {
-            mAttack = { cooldownUntil: 0, attacking: false, attackFrame: 0, attackStart: 0 };
-            battleState.marineAttacks[zer.targetAgentId] = mAttack;
-          }
+        // Remove if off-screen bottom-left
+        if (zer.x < -30 || zer.y > 340) { continue; }
 
-          if (!mAttack.attacking && now >= mAttack.cooldownUntil) {
-            // Marine starts attacking, zergling starts dying
-            mAttack.attacking = true;
-            mAttack.attackStart = now;
-            mAttack.attackFrame = 0;
-            zer.state = 'dying';
-            zer.deathFrame = 0;
-            zer.deathTimer = now;
-          }
-          // If marine is busy, zergling waits (stays in alive list)
-          alive.push(zer);
-        } else {
-          // Move toward target
-          var nx = dx / dist;
-          var ny = dy / dist;
-          zer.x += nx * zer.speed;
-          zer.y += ny * zer.speed;
-
-          // Advance animation frame
-          if (now - zer.frameTimer >= ZERGLING_FRAME_MS) {
-            zer.frame = (zer.frame + 1) % BATTLE_DATA.zergling.movingFrames;
-            zer.frameTimer = now;
-          }
-          alive.push(zer);
+        // Advance animation frame
+        if (now - zer.frameTimer >= ZERGLING_FRAME_MS) {
+          zer.frame = (zer.frame + 1) % BATTLE_DATA.zergling.movingFrames;
+          zer.frameTimer = now;
         }
+        alive.push(zer);
       } else if (zer.state === 'dying') {
-        // Play death animation
         if (now - zer.deathTimer >= ZERGLING_FRAME_MS) {
           zer.deathFrame++;
           zer.deathTimer = now;
         }
         if (zer.deathFrame >= BATTLE_DATA.zergling.deathFrames) {
-          zer.state = 'dead';
-          // Don't push to alive — it's removed
+          // Dead — don't keep
         } else {
           alive.push(zer);
         }
       }
-      // 'dead' zerglings are simply not pushed to alive
     }
     battleState.zerglings = alive;
 
-    // Update marine attack states
+    // Update marine attack animation states
     for (var agentId in battleState.marineAttacks) {
       var ma = battleState.marineAttacks[agentId];
       if (ma.attacking) {
@@ -3873,6 +3932,7 @@
     drawAgents(agents, now);
     drawAnimations(agents, now);
     composeToScreen();
+    drawClickEffects();
     renderOverlay(agents, now);
     requestAnimationFrame(render);
   }
@@ -3928,6 +3988,11 @@
         var agentId = sprite.getAttribute('data-agent-id');
         selectAgentForHud(agentId);
       }
+      // SC click effect — green expanding ring
+      var rect = overlayEl.getBoundingClientRect();
+      var clickX = e.clientX - rect.left;
+      var clickY = e.clientY - rect.top;
+      spawnClickEffect(clickX, clickY);
     });
     overlayEl.addEventListener('mouseleave', function () {
       hideMapTooltip();
@@ -4163,7 +4228,7 @@
       });
     }
 
-    bindBoxInteractions(boxListEl);
+    if (boxListEl) bindBoxInteractions(boxListEl);
     bindBoxInteractions(boxHistoryGridEl);
     subhistoryGridEl.addEventListener('mouseover', function (e) {
       var card = e.target.closest('.subhistory-lineage-card[data-subhistory-key]');
@@ -4180,7 +4245,7 @@
       }
       hideSubhistoryTooltip();
     });
-    boxHistoryToggleEl.addEventListener('click', function () {
+    if (boxHistoryToggleEl) boxHistoryToggleEl.addEventListener('click', function () {
       setBoxHistoryOpen(true);
     });
     boxHistoryCloseEl.addEventListener('click', function () {

@@ -30,6 +30,23 @@
   --font-body: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Courier New', monospace;
 }
 
+/* SC Cursors */
+*, *::before, *::after {
+  cursor: url('/data/cursor.png') 0 0, auto;
+}
+
+*:active {
+  cursor: url('/data/cursor_click.png') 14 14, auto;
+}
+
+button, select, a, .poke-slot, .pokedex-toggle, .hard-reset-btn, .promo-studio-toggle {
+  cursor: url('/data/cursor.png') 0 0, pointer;
+}
+
+button:active, select:active, a:active, .poke-slot:active {
+  cursor: url('/data/cursor_click.png') 14 14, pointer;
+}
+
 * {
   box-sizing: border-box;
 }

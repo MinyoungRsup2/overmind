@@ -1,97 +1,29 @@
-<p align="left"><strong>English</strong> | <a href="./README.ko.md">한국어</a></p>
+# OVERMIND
 
-# agentdex
-
-![agentdex overworld](imgs/overworld.jpg)
-
-> *Your Claude Code agents become Pokemon.*
+> *Your Claude Code agents are Marines. Your tokens are Zerglings.*
 >
-> *Gotta Monitor 'Em All!*
+> *Power Overwhelming.*
 
-`agentdex` is a live web dashboard for Claude Code agents.
+A StarCraft: Brood War themed live dashboard for Claude Code agents.
 
-Every active session gets assigned a Pokemon and dropped onto a tiny island map — so you can see at a glance what's running, what's waiting, and which sessions are burning through tokens the fastest.
+Every active session becomes a Terran Marine defending a chokepoint on the map. Token usage spawns waves of Zerglings from the top-right that rush diagonally toward your Marines. Marines fire back, killing each Zergling in a spray of death frames. The heavier your token burn, the thicker the swarm.
 
 ## At A Glance
 
-- `Active Pokemon` — the Claude Code agents currently running on your machine
-- `HP` — remaining context window for that session
-- `EXP` and `LV` — token usage surfaced as RPG-style progress
-- `Status` — thinking, using a tool, outputting, waiting, or sleeping
-- `Pokedex` — your running collection of every Pokemon you've ever spawned
-
-## Table of Contents
-
-- [Field Guide](#field-guide)
-  - [Island](#island)
-  - [Agents Panel](#agents-panel)
-  - [Pokedex](#pokedex)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-  - [Commands](#commands)
-  - [Hard Reset](#hard-reset)
-- [Mock Mode](#mock-mode)
-- [Notes](#notes)
-
-## Field Guide
-
-### Island
-
-![Island view](imgs/island.jpg)
-
-- Every new session gets a Pokemon when it first appears in the world.
-    - Pokemon spawn into habitat-matched parts of the island — cave Pokemon, grassland Pokemon, and sea Pokemon all show up where they belong.
-    - Spawn odds are weighted by rarity, so commons appear much more often than rares.
-- Root agents appear at full size; subagents show up nearby as smaller icons.
-    - Subagents stay within the parent's evolutionary line, appearing as the same Pokemon or an earlier evolution.
-
-### Agents Panel
-
-![Agents panel](imgs/pokemon_tab.jpg)
-
-- Every spawned Pokemon is mirrored in the left panel so you can see the active roster at a glance.
-- `LV` and `EXP` grow with token spend.
-- `HP` drops as the session burns through its context window — a useful signal for when to wrap up and start fresh.
-- When a subagent is summoned, the panel shows its hierarchy under the parent.
-- In live `watch` mode, a root agent that goes quiet for `10 minutes` switches to `Sleeping`.
-- Stay quiet for `8 hours` total and it gets boxed off the live map.
-
-- The Box archives finished sessions and keeps up to `300` records.
-
-### Pokedex
-
-![Island Pokedex](imgs/pokedex.jpg)
-
-- Every Pokemon you spawn is automatically registered.
-- First discovery records when it was first seen, plus the project and session where it showed up.
-- If a Pokemon was first discovered through a subagent, its parent lineage is recorded too.
-- Gotta Catch 'Em All!
-
-## Installation
-
-On Ubuntu, install the prerequisites first:
-
-```bash
-sudo apt update
-sudo apt install -y git nodejs npm
-```
-
-Then clone and download the Pokemon sprites:
-
-```bash
-git clone git@github.com:Hwiyeon/agentdex.git
-cd agentdex
-node tools/setup_poke_assets.js
-```
-
-- No external npm dependencies.
-- Watches Claude Code transcripts under `~/.claude/projects` by default.
-- `setup_poke_assets.js` pulls the sprite set from the [PokeAPI sprites repository](https://github.com/PokeAPI/sprites) into `public/vendor/pokeapi-sprites`.
+- **Marines** -- your active Claude Code sessions, clustered at the bottom-left rally point
+- **Zerglings** -- token consumption visualized as an incoming swarm from the top-right
+- **HP** -- remaining context window for each session
+- **Kill cadence** -- Marines proactively engage the closest Zergling, cycling attack and cooldown
+- **Zerg console HUD** -- the actual ControlPanel.png sprite from SC:BW, with the organic Zerg border-image tiling across the center info panel
+- **SC cursor** -- the green arrow and yellow targeting circle, straight from the game
+- **Unit Archive** -- tracks every SC unit type you've ever spawned across sessions
 
 ## Quick Start
-Inside the `agentdex` directory, start the live watcher: 
 
 ```bash
+git clone <this-repo>
+cd overmind
+node tools/setup_poke_assets.js   # download sprite base (optional, for Pokemon fallback)
 node cli.js watch
 ```
 
@@ -100,33 +32,50 @@ Open `http://127.0.0.1:8123`.
 ### Commands
 
 ```bash
-node cli.js watch [--port 8123]
-node cli.js mock [--port 8123] 
+node cli.js watch [--port 8123]   # live mode — watches ~/.claude/projects/
+node cli.js mock  [--port 8123]   # demo mode — synthetic agents + token events
 node cli.js hard-reset [watch|mock]
 node cli.js help
 ```
 
-### Hard Reset
+## How It Works
 
-Available in both `watch` and `mock` via the dashboard button.
+### Token Battles
 
-- In `watch`: clears boxed history and Pokedex progress, keeps only currently active top-level agents on screen, and re-primes the watcher to the current end of each transcript so old history isn't replayed.
-- In `mock`: clears the mock snapshot and Pokedex files, then reseeds a fresh scene.
-- `node cli.js hard-reset [watch|mock]` does the same without starting the dashboard.
+The dashboard tracks cumulative token spend across all active sessions. For every ~10,000 tokens consumed, a Zergling spawns at the top-right edge of the map and marches diagonally down-left. When it reaches a Marine's kill range, the Marine plays its 7-frame attack animation (direction 1, facing up-right) and the Zergling plays its 7-frame death burst from `Burst.js`. The Marine then enters a short cooldown before engaging the next target.
 
-## Mock Mode
+All sprite data is extracted from the original SC:BW game files via `tools/extract_sc_data.js`, which parses the `vendor-sc/Characters/*.js` unit definitions into `data/sc_unit_data.json`. Battle-specific directional frames (Marine attack facing up-right, Zergling moving down-left, Zergling death) are hardcoded in `app.js` as `BATTLE_DATA`.
 
-No real Claude logs? No problem. `mock` mode is for demos, screenshots, and UI testing.
+### Architecture
 
-```bash
-node cli.js mock
+```
+cli.js          -- entry point, wires everything, persistence
+watcher.js      -- tails ~/.claude/projects/**/*.jsonl in real-time
+parser.js       -- normalizes Claude Code JSONL into typed events
+state.js        -- in-memory state machine (active, sleeping, boxed)
+starcraft.js    -- agentId -> SC unit ID mapping (weighted by rarity tier)
+server.js       -- vanilla Node HTTP + SSE for real-time browser push
+public/app.js   -- canvas renderer, battle system, HUD
 ```
 
-Open `Promo Studio` from the top bar while in `mock` mode to build polished promo scenes — spawn any Pokemon you want, tune `Level`, `HP %`, `EXP`, and `Status`, box and unbox custom root agents, and export the current scene as a PNG.
+Zero npm dependencies. Pure Node.js + browser Canvas API.
 
-All mock data is local-only and never touches your real transcript files.
+### Sprite Assets
 
-## Notes
+Unit sprites come from [raydogg779/StarCraft](https://github.com/raydogg779/StarCraft), an HTML5 StarCraft clone. The `vendor-sc/` directory contains the full sprite sheets (`img/Charas/`), the Zerg console panel (`img/Menu/ControlPanel.png`), SC cursors, and map backgrounds.
 
-- Tested on Ubuntu and macOS. Should work on other Node.js platforms, but not guaranteed.
-- Current Pokedex covers the first `251` Pokemon. More updates are planned.
+49 SC units across 4 factions (Zerg, Terran, Protoss, Neutral), each with sprite sheet frame coordinates for idle, moving, and attack animations.
+
+## Credits
+
+This project is a StarCraft-themed fork of [**agentdex**](https://github.com/Hwiyeon/agentdex) by [Hwiyeon](https://github.com/Hwiyeon). The original agentdex is a Pokemon-themed live dashboard where Claude Code agents become Pokemon on a pixel art island. This fork replaces the Pokemon layer with StarCraft: Brood War sprites and adds a real-time battle visualization system.
+
+**Original project:** [Hwiyeon/agentdex](https://github.com/Hwiyeon/agentdex) (MIT License)
+
+**StarCraft sprite assets:** [raydogg779/StarCraft](https://github.com/raydogg779/StarCraft)
+
+**StarCraft: Brood War** is a trademark of Blizzard Entertainment. All game assets are used for personal/hobby purposes under fair use. This project is not affiliated with or endorsed by Blizzard Entertainment.
+
+## License
+
+MIT -- see [LICENSE](./LICENSE).
