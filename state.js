@@ -163,7 +163,7 @@ class AgentState extends EventEmitter {
       agent,
       getAgentById: (id, lookupOptions = {}) => this.lookupAgentById(id, lookupOptions)
     });
-    if (!Number.isInteger(pokemonId) || pokemonId < 1 || pokemonId > 251) {
+    if (!Number.isInteger(pokemonId) || pokemonId < 1 || pokemonId > 999) {
       return false;
     }
 
@@ -182,7 +182,7 @@ class AgentState extends EventEmitter {
     const seenIds = Array.isArray(ids) ? ids : [];
     for (const rawId of seenIds) {
       const pokemonId = Number(rawId);
-      if (!Number.isInteger(pokemonId) || pokemonId < 1 || pokemonId > 251 || this.seenPokemonIds.has(pokemonId)) {
+      if (!Number.isInteger(pokemonId) || pokemonId < 1 || pokemonId > 999 || this.seenPokemonIds.has(pokemonId)) {
         continue;
       }
       this.seenPokemonIds.add(pokemonId);
@@ -280,7 +280,7 @@ class AgentState extends EventEmitter {
       seenPokemonIds,
       firstDiscoveryByPokemon,
       discoveredCount: seenPokemonIds.length,
-      totalCount: 251
+      totalCount: seenPokemonIds.length > 0 ? Math.max(49, Math.max(...seenPokemonIds)) : 49
     };
   }
 

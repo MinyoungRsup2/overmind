@@ -10,7 +10,7 @@ const { EVENT_TYPES } = require('./parser');
 const { AgentState } = require('./state');
 const { TranscriptWatcher } = require('./watcher');
 const { DashboardServer } = require('./server');
-const { POKEDEX_MAX, resolveRenderedPokemonIdForAgent } = require('./pokemon');
+const { getScUnitCount, resolveRenderedUnitIdForAgent } = require('./starcraft');
 
 const DEFAULTS = {
   port: 8123,
@@ -86,7 +86,7 @@ function savePokedex(state, persist) {
       seenPokemonIds: pokedex.seenPokemonIds,
       firstDiscoveryByPokemon: pokedex.firstDiscoveryByPokemon,
       discovered: pokedex.discoveredCount,
-      total: POKEDEX_MAX
+      total: getScUnitCount()
     };
     fs.writeFileSync(persist.pokedexFile, JSON.stringify(data, null, 2), 'utf8');
   } catch (error) {
@@ -803,7 +803,7 @@ async function run() {
     resolvePokemonId(agentId, context = {}) {
       const agent = context.agent || null;
       const meta = context.meta || {};
-      return resolveRenderedPokemonIdForAgent(agentId, {
+      return resolveRenderedUnitIdForAgent(agentId, {
         parentId: (agent && agent.parentId) || meta.parentId || null,
         getAgentById: context.getAgentById,
         createdAt: (agent && agent.createdAt) || context.ts

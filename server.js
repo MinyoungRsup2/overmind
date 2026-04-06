@@ -6,7 +6,7 @@ const path = require('path');
 const http = require('http');
 const url = require('url');
 const EventEmitter = require('events');
-const { spriteCandidates } = require('./paths');
+const { spriteCandidates, SC_SPRITES_DIR } = require('./paths');
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -249,6 +249,32 @@ class DashboardServer extends EventEmitter {
     const cleaned = requestPath.replace(/^\/+/, '');
     const parts = cleaned.split('/');
 
+    // SC sprite sheets: /sprites/sheet/{UnitName}.png
+    if (parts.length === 3 && parts[0] === 'sprites' && parts[1] === 'sheet') {
+      const safeName = path.basename(parts[2]);
+      const sheetPath = path.join(SC_SPRITES_DIR, safeName);
+      if (!sheetPath.startsWith(SC_SPRITES_DIR)) {
+        this.sendJson(res, 403, { error: 'Forbidden' });
+        return;
+      }
+      try {
+        const fileBuffer = await fsp.readFile(sheetPath);
+        const ext = path.extname(sheetPath).toLowerCase();
+        res.statusCode = 200;
+        res.setHeader('Content-Type', MIME_TYPES[ext] || 'application/octet-stream');
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        res.end(fileBuffer);
+        return;
+      } catch (error) {
+        if (error.code !== 'ENOENT') {
+          throw error;
+        }
+        this.sendJson(res, 404, { error: 'Not found' });
+        return;
+      }
+    }
+
+    // Legacy Pokemon sprites: /sprites/{static|animated|icon|icon-static}/{id}.{png|gif}
     if (parts.length === 3 && parts[0] === 'sprites' && (parts[1] === 'static' || parts[1] === 'animated' || parts[1] === 'icon' || parts[1] === 'icon-static')) {
       const kind = parts[1];
       const safeName = path.basename(parts[2]);

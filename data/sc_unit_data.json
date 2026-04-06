@@ -1,0 +1,2707 @@
+{
+  "units": [
+    {
+      "unitId": 1,
+      "name": "Drone",
+      "faction": "Zerg",
+      "spriteSheet": "Drone.png",
+      "width": 56,
+      "height": 56,
+      "tier": 1,
+      "habitat": "cave",
+      "imgPos": {
+        "moving": {
+          "left": [
+            804,
+            804,
+            804
+          ],
+          "top": [
+            36,
+            164,
+            292
+          ]
+        },
+        "dock": {
+          "left": [
+            804
+          ],
+          "top": [
+            36
+          ]
+        },
+        "attack": {
+          "left": [
+            804,
+            804,
+            804,
+            804,
+            804,
+            804,
+            804
+          ],
+          "top": [
+            420,
+            548,
+            676,
+            804,
+            932,
+            1060,
+            1188
+          ]
+        }
+      },
+      "frame": {
+        "moving": 3,
+        "dock": 1,
+        "attack": 7
+      }
+    },
+    {
+      "unitId": 2,
+      "name": "Zergling",
+      "faction": "Zerg",
+      "spriteSheet": "Zergling.png",
+      "width": 43,
+      "height": 42,
+      "tier": 1,
+      "habitat": "cave",
+      "imgPos": {
+        "moving": {
+          "left": [
+            258,
+            258,
+            258,
+            258,
+            258,
+            258,
+            258
+          ],
+          "top": [
+            0,
+            42,
+            84,
+            126,
+            168,
+            210,
+            252
+          ]
+        },
+        "dock": {
+          "left": [
+            258
+          ],
+          "top": [
+            0
+          ]
+        },
+        "attack": {
+          "left": [
+            258,
+            258,
+            258,
+            258,
+            258
+          ],
+          "top": [
+            294,
+            336,
+            378,
+            420,
+            462
+          ]
+        }
+      },
+      "frame": {
+        "moving": 7,
+        "dock": 1,
+        "attack": 5
+      }
+    },
+    {
+      "unitId": 3,
+      "name": "Overlord",
+      "faction": "Zerg",
+      "spriteSheet": "Overlord.png",
+      "width": 68,
+      "height": 72,
+      "tier": 2,
+      "habitat": "sea",
+      "imgPos": {
+        "moving": {
+          "left": [
+            8,
+            8,
+            92,
+            92,
+            174,
+            174,
+            260,
+            260
+          ],
+          "top": [
+            508,
+            508,
+            508,
+            508,
+            508,
+            508,
+            508,
+            508
+          ]
+        },
+        "dock": {
+          "left": [
+            8
+          ],
+          "top": [
+            508
+          ]
+        }
+      },
+      "frame": {
+        "moving": 8,
+        "dock": 1
+      }
+    },
+    {
+      "unitId": 4,
+      "name": "Hydralisk",
+      "faction": "Zerg",
+      "spriteSheet": "Hydralisk.png",
+      "width": 45,
+      "height": 58,
+      "tier": 2,
+      "habitat": "cave",
+      "imgPos": {
+        "moving": {
+          "left": [
+            270,
+            270,
+            270,
+            270,
+            270,
+            270,
+            270
+          ],
+          "top": [
+            0,
+            58,
+            116,
+            174,
+            232,
+            290,
+            348
+          ]
+        },
+        "dock": {
+          "left": [
+            270
+          ],
+          "top": [
+            0
+          ]
+        },
+        "attack": {
+          "left": [
+            270,
+            270,
+            270,
+            270,
+            270
+          ],
+          "top": [
+            406,
+            464,
+            522,
+            580,
+            638
+          ]
+        }
+      },
+      "frame": {
+        "moving": 7,
+        "dock": 1,
+        "attack": 5
+      }
+    },
+    {
+      "unitId": 5,
+      "name": "Lurker",
+      "faction": "Zerg",
+      "spriteSheet": "Lurker.png",
+      "width": 72,
+      "height": 67,
+      "tier": 2,
+      "habitat": "cave",
+      "imgPos": {
+        "moving": {
+          "left": [
+            432,
+            432,
+            432,
+            432,
+            432,
+            432,
+            432
+          ],
+          "top": [
+            1,
+            68,
+            135,
+            202,
+            269,
+            336,
+            403
+          ]
+        },
+        "dock": {
+          "left": [
+            432
+          ],
+          "top": [
+            1
+          ]
+        }
+      },
+      "frame": {
+        "moving": 7,
+        "dock": 1
+      }
+    },
+    {
+      "unitId": 6,
+      "name": "Mutalisk",
+      "faction": "Zerg",
+      "spriteSheet": "Mutalisk.png",
+      "width": 66,
+      "height": 75,
+      "tier": 3,
+      "habitat": "sea",
+      "imgPos": {
+        "moving": {
+          "left": [
+            401,
+            401,
+            401,
+            401,
+            401
+          ],
+          "top": [
+            0,
+            75,
+            150,
+            225,
+            300
+          ]
+        },
+        "dock": {
+          "left": [
+            401,
+            401,
+            401,
+            401,
+            401
+          ],
+          "top": [
+            0,
+            75,
+            150,
+            225,
+            300
+          ]
+        }
+      },
+      "frame": {
+        "moving": 5,
+        "dock": 5
+      }
+    },
+    {
+      "unitId": 7,
+      "name": "Guardian",
+      "faction": "Zerg",
+      "spriteSheet": "Guardian.png",
+      "width": 81,
+      "height": 74,
+      "tier": 4,
+      "habitat": "sea",
+      "imgPos": {
+        "moving": {
+          "left": [
+            486,
+            486,
+            486,
+            486,
+            486,
+            486,
+            486
+          ],
+          "top": [
+            0,
+            74,
+            148,
+            222,
+            296,
+            370,
+            444
+          ]
+        },
+        "dock": {
+          "left": [
+            486,
+            486,
+            486,
+            486,
+            486,
+            486,
+            486
+          ],
+          "top": [
+            0,
+            74,
+            148,
+            222,
+            296,
+            370,
+            444
+          ]
+        }
+      },
+      "frame": {
+        "moving": 7,
+        "dock": 7
+      }
+    },
+    {
+      "unitId": 8,
+      "name": "Devourer",
+      "faction": "Zerg",
+      "spriteSheet": "Devourer.png",
+      "width": 73,
+      "height": 86,
+      "tier": 4,
+      "habitat": "sea",
+      "imgPos": {
+        "moving": {
+          "left": [
+            438,
+            438,
+            438,
+            438,
+            438,
+            438
+          ],
+          "top": [
+            0,
+            86,
+            172,
+            258,
+            344,
+            430
+          ]
+        },
+        "dock": {
+          "left": [
+            438,
+            438,
+            438,
+            438,
+            438,
+            438
+          ],
+          "top": [
+            0,
+            86,
+            172,
+            258,
+            344,
+            430
+          ]
+        },
+        "attack": {
+          "left": [
+            438,
+            438,
+            438,
+            438,
+            438,
+            438,
+            438,
+            438
+          ],
+          "top": [
+            516,
+            516,
+            602,
+            602,
+            688,
+            688,
+            774,
+            774
+          ]
+        }
+      },
+      "frame": {
+        "moving": 6,
+        "dock": 6,
+        "attack": 8
+      }
+    },
+    {
+      "unitId": 9,
+      "name": "Scourge",
+      "faction": "Zerg",
+      "spriteSheet": "Scourge.png",
+      "width": 34,
+      "height": 30,
+      "tier": 5,
+      "habitat": "sea",
+      "imgPos": {
+        "moving": {
+          "left": [
+            204,
+            204,
+            204,
+            204,
+            204
+          ],
+          "top": [
+            0,
+            30,
+            60,
+            90,
+            120
+          ]
+        },
+        "dock": {
+          "left": [
+            204,
+            204,
+            204,
+            204,
+            204
+          ],
+          "top": [
+            0,
+            30,
+            60,
+            90,
+            120
+          ]
+        },
+        "attack": {
+          "left": [
+            204,
+            204,
+            204,
+            204,
+            204
+          ],
+          "top": [
+            0,
+            30,
+            60,
+            90,
+            120
+          ]
+        }
+      },
+      "frame": {
+        "moving": 5,
+        "dock": 5,
+        "attack": 5
+      }
+    },
+    {
+      "unitId": 10,
+      "name": "Queen",
+      "faction": "Zerg",
+      "spriteSheet": "Queen.png",
+      "width": 78,
+      "height": 71,
+      "tier": 3,
+      "habitat": "sea",
+      "imgPos": {
+        "moving": {
+          "left": [
+            468,
+            468,
+            468,
+            468,
+            468
+          ],
+          "top": [
+            0,
+            71,
+            142,
+            213,
+            284
+          ]
+        },
+        "dock": {
+          "left": [
+            468,
+            468,
+            468,
+            468,
+            468
+          ],
+          "top": [
+            0,
+            71,
+            142,
+            213,
+            284
+          ]
+        }
+      },
+      "frame": {
+        "moving": 5,
+        "dock": 5
+      }
+    },
+    {
+      "unitId": 11,
+      "name": "Broodling",
+      "faction": "Zerg",
+      "spriteSheet": "Broodling.png",
+      "width": 38,
+      "height": 38,
+      "tier": 5,
+      "habitat": "cave",
+      "imgPos": {
+        "moving": {
+          "left": [
+            293,
+            293,
+            293,
+            293,
+            293,
+            293,
+            293
+          ],
+          "top": [
+            5,
+            53,
+            101,
+            149,
+            197,
+            245,
+            293
+          ]
+        },
+        "dock": {
+          "left": [
+            293
+          ],
+          "top": [
+            5
+          ]
+        },
+        "attack": {
+          "left": [
+            293,
+            293,
+            293,
+            293,
+            293
+          ],
+          "top": [
+            341,
+            389,
+            437,
+            485,
+            533
+          ]
+        }
+      },
+      "frame": {
+        "moving": 7,
+        "dock": 1,
+        "attack": 5
+      }
+    },
+    {
+      "unitId": 12,
+      "name": "Ultralisk",
+      "faction": "Zerg",
+      "spriteSheet": "Ultralisk.png",
+      "width": 101,
+      "height": 108,
+      "tier": 4,
+      "habitat": "cave",
+      "imgPos": {
+        "moving": {
+          "left": [
+            707,
+            707,
+            707,
+            707,
+            707,
+            707,
+            707,
+            707,
+            707
+          ],
+          "top": [
+            0,
+            108,
+            216,
+            324,
+            432,
+            540,
+            648,
+            756,
+            864
+          ]
+        },
+        "dock": {
+          "left": [
+            707
+          ],
+          "top": [
+            0
+          ]
+        },
+        "attack": {
+          "left": [
+            707,
+            707,
+            707,
+            707,
+            707,
+            707
+          ],
+          "top": [
+            972,
+            1080,
+            1188,
+            1296,
+            1404,
+            1512
+          ]
+        }
+      },
+      "frame": {
+        "moving": 9,
+        "dock": 1,
+        "attack": 6
+      }
+    },
+    {
+      "unitId": 13,
+      "name": "Defiler",
+      "faction": "Zerg",
+      "spriteSheet": "Defiler.png",
+      "width": 72,
+      "height": 62,
+      "tier": 3,
+      "habitat": "cave",
+      "imgPos": {
+        "moving": {
+          "left": [
+            432,
+            432,
+            432,
+            432,
+            432,
+            432,
+            432,
+            432
+          ],
+          "top": [
+            0,
+            62,
+            124,
+            186,
+            248,
+            310,
+            372,
+            434
+          ]
+        },
+        "dock": {
+          "left": [
+            432,
+            432,
+            432,
+            432,
+            432,
+            432,
+            432,
+            432
+          ],
+          "top": [
+            0,
+            62,
+            124,
+            186,
+            248,
+            310,
+            372,
+            434
+          ]
+        }
+      },
+      "frame": {
+        "moving": 8,
+        "dock": 8
+      }
+    },
+    {
+      "unitId": 14,
+      "name": "InfestedTerran",
+      "faction": "Zerg",
+      "spriteSheet": "InfestedTerran.png",
+      "width": 41,
+      "height": 44,
+      "tier": 5,
+      "habitat": "cave",
+      "imgPos": {
+        "moving": {
+          "left": [
+            246,
+            246,
+            246,
+            246,
+            246,
+            246,
+            246,
+            246
+          ],
+          "top": [
+            0,
+            54,
+            108,
+            162,
+            216,
+            270,
+            324,
+            378
+          ]
+        },
+        "dock": {
+          "left": [
+            246
+          ],
+          "top": [
+            0
+          ]
+        }
+      },
+      "frame": {
+        "moving": 8,
+        "dock": 1
+      }
+    },
+    {
+      "unitId": 15,
+      "name": "Larva",
+      "faction": "Zerg",
+      "spriteSheet": "Larva.png",
+      "width": 32,
+      "height": 28,
+      "tier": 1,
+      "habitat": "cave",
+      "imgPos": {
+        "moving": {
+          "left": [
+            199,
+            199,
+            199,
+            199,
+            199
+          ],
+          "top": [
+            1,
+            30,
+            59,
+            88,
+            117
+          ]
+        },
+        "dock": {
+          "left": [
+            199,
+            199,
+            199,
+            199,
+            199
+          ],
+          "top": [
+            1,
+            30,
+            59,
+            88,
+            117
+          ]
+        }
+      },
+      "frame": {
+        "moving": 5,
+        "dock": 1
+      }
+    },
+    {
+      "unitId": 16,
+      "name": "SCV",
+      "faction": "Terran",
+      "spriteSheet": "SCV.png",
+      "width": 40,
+      "height": 44,
+      "tier": 1,
+      "habitat": "grassland",
+      "imgPos": {
+        "moving": {
+          "left": [
+            154
+          ],
+          "top": [
+            1
+          ]
+        },
+        "dock": {
+          "left": [
+            154
+          ],
+          "top": [
+            1
+          ]
+        },
+        "attack": {
+          "left": [
+            154,
+            154,
+            154,
+            154,
+            154
+          ],
+          "top": [
+            55,
+            55,
+            105,
+            105,
+            105
+          ]
+        }
+      },
+      "frame": {
+        "moving": 1,
+        "dock": 1,
+        "attack": 5
+      }
+    },
+    {
+      "unitId": 17,
+      "name": "Marine",
+      "faction": "Terran",
+      "spriteSheet": "Marine.png",
+      "width": 44,
+      "height": 44,
+      "tier": 1,
+      "habitat": "grassland",
+      "imgPos": {
+        "moving": {
+          "left": [
+            394,
+            394,
+            394,
+            394,
+            394,
+            394,
+            394,
+            394,
+            394
+          ],
+          "top": [
+            266,
+            330,
+            394,
+            458,
+            522,
+            586,
+            650,
+            714,
+            778
+          ]
+        },
+        "dock": {
+          "left": [
+            394
+          ],
+          "top": [
+            10
+          ]
+        },
+        "attack": {
+          "left": [
+            394,
+            394,
+            394,
+            394,
+            394,
+            394,
+            394
+          ],
+          "top": [
+            74,
+            138,
+            202,
+            138,
+            202,
+            138,
+            202
+          ]
+        }
+      },
+      "frame": {
+        "moving": 9,
+        "dock": 1,
+        "attack": 7
+      }
+    },
+    {
+      "unitId": 18,
+      "name": "Firebat",
+      "faction": "Terran",
+      "spriteSheet": "Firebat.png",
+      "width": 32,
+      "height": 32,
+      "tier": 1,
+      "habitat": "grassland",
+      "imgPos": {
+        "moving": {
+          "left": [
+            192,
+            192,
+            192,
+            192,
+            192,
+            192,
+            192,
+            192
+          ],
+          "top": [
+            64,
+            96,
+            128,
+            160,
+            192,
+            224,
+            256,
+            288
+          ]
+        },
+        "dock": {
+          "left": [
+            192
+          ],
+          "top": [
+            64
+          ]
+        },
+        "attack": {
+          "left": [
+            192,
+            192,
+            192,
+            192,
+            192,
+            192
+          ],
+          "top": [
+            0,
+            32,
+            32,
+            32,
+            32,
+            32
+          ]
+        }
+      },
+      "frame": {
+        "moving": 8,
+        "dock": 1,
+        "attack": 6
+      }
+    },
+    {
+      "unitId": 19,
+      "name": "Ghost",
+      "faction": "Terran",
+      "spriteSheet": "Ghost.png",
+      "width": 43,
+      "height": 39,
+      "tier": 2,
+      "habitat": "grassland",
+      "imgPos": {
+        "moving": {
+          "left": [
+            258,
+            258,
+            258,
+            258,
+            258,
+            258,
+            258,
+            258,
+            258
+          ],
+          "top": [
+            0,
+            39,
+            78,
+            117,
+            156,
+            195,
+            234,
+            273,
+            312
+          ]
+        },
+        "dock": {
+          "left": [
+            258
+          ],
+          "top": [
+            0
+          ]
+        },
+        "attack": {
+          "left": [
+            258,
+            258,
+            258,
+            258
+          ],
+          "top": [
+            351,
+            390,
+            429,
+            468
+          ]
+        }
+      },
+      "frame": {
+        "moving": 9,
+        "dock": 1,
+        "attack": 4
+      }
+    },
+    {
+      "unitId": 20,
+      "name": "Medic",
+      "faction": "Terran",
+      "spriteSheet": "Medic.png",
+      "width": 32,
+      "height": 32,
+      "tier": 1,
+      "habitat": "grassland",
+      "imgPos": {
+        "moving": {
+          "left": [
+            400,
+            400,
+            400,
+            400,
+            400,
+            400,
+            400
+          ],
+          "top": [
+            400,
+            464,
+            528,
+            592,
+            656,
+            720,
+            784
+          ]
+        },
+        "dock": {
+          "left": [
+            400
+          ],
+          "top": [
+            400
+          ]
+        },
+        "attack": {
+          "left": [
+            400,
+            400,
+            400,
+            400,
+            400,
+            400
+          ],
+          "top": [
+            16,
+            80,
+            144,
+            208,
+            272,
+            336
+          ]
+        }
+      },
+      "frame": {
+        "moving": 7,
+        "dock": 1,
+        "attack": 6
+      }
+    },
+    {
+      "unitId": 21,
+      "name": "Vulture",
+      "faction": "Terran",
+      "spriteSheet": "Vulture.png",
+      "width": 80,
+      "height": 80,
+      "tier": 2,
+      "habitat": "grassland",
+      "imgPos": {
+        "moving": {
+          "left": [
+            610
+          ],
+          "top": [
+            10
+          ]
+        },
+        "dock": {
+          "left": [
+            610
+          ],
+          "top": [
+            10
+          ]
+        },
+        "attack": {
+          "left": [
+            610
+          ],
+          "top": [
+            10
+          ]
+        }
+      },
+      "frame": {
+        "moving": 1,
+        "dock": 1,
+        "attack": 1
+      }
+    },
+    {
+      "unitId": 22,
+      "name": "Tank",
+      "faction": "Terran",
+      "spriteSheet": "Tank.png",
+      "width": 80,
+      "height": 80,
+      "tier": 3,
+      "habitat": "grassland",
+      "imgPos": {
+        "moving": {
+          "left": [
+            792,
+            792,
+            792
+          ],
+          "top": [
+            24,
+            152,
+            280
+          ]
+        },
+        "dock": {
+          "left": [
+            792
+          ],
+          "top": [
+            24
+          ]
+        },
+        "attack": {
+          "left": [
+            792
+          ],
+          "top": [
+            24
+          ]
+        }
+      },
+      "frame": {
+        "moving": 3,
+        "dock": 1,
+        "attack": 1
+      }
+    },
+    {
+      "unitId": 23,
+      "name": "Goliath",
+      "faction": "Terran",
+      "spriteSheet": "Goliath.png",
+      "width": 76,
+      "height": 76,
+      "tier": 2,
+      "habitat": "grassland",
+      "imgPos": {
+        "moving": {
+          "left": [
+            456,
+            456,
+            456,
+            456,
+            456,
+            456,
+            456,
+            456,
+            456,
+            456
+          ],
+          "top": [
+            0,
+            76,
+            152,
+            228,
+            304,
+            380,
+            456,
+            532,
+            608,
+            684
+          ]
+        },
+        "dock": {
+          "left": [
+            456
+          ],
+          "top": [
+            228
+          ]
+        },
+        "attack": {
+          "left": [
+            456,
+            456
+          ],
+          "top": [
+            684,
+            760
+          ]
+        }
+      },
+      "frame": {
+        "moving": 10,
+        "dock": 1,
+        "attack": 2
+      }
+    },
+    {
+      "unitId": 24,
+      "name": "Wraith",
+      "faction": "Terran",
+      "spriteSheet": "Wraith.png",
+      "width": 50,
+      "height": 41,
+      "tier": 3,
+      "habitat": "mountain",
+      "imgPos": {
+        "moving": {
+          "left": [
+            59
+          ],
+          "top": [
+            3
+          ]
+        },
+        "dock": {
+          "left": [
+            59
+          ],
+          "top": [
+            3
+          ]
+        }
+      },
+      "frame": {
+        "moving": 1,
+        "dock": 1
+      }
+    },
+    {
+      "unitId": 25,
+      "name": "Dropship",
+      "faction": "Terran",
+      "spriteSheet": "Dropship.png",
+      "width": 60,
+      "height": 60,
+      "tier": 5,
+      "habitat": "mountain",
+      "imgPos": {
+        "moving": {
+          "left": [
+            180
+          ],
+          "top": [
+            0
+          ]
+        },
+        "dock": {
+          "left": [
+            180
+          ],
+          "top": [
+            0
+          ]
+        }
+      },
+      "frame": {
+        "moving": 1,
+        "dock": 1
+      }
+    },
+    {
+      "unitId": 26,
+      "name": "Vessel",
+      "faction": "Terran",
+      "spriteSheet": "Vessel.png",
+      "width": 70,
+      "height": 55,
+      "tier": 4,
+      "habitat": "mountain",
+      "imgPos": {
+        "moving": {
+          "left": [
+            14
+          ],
+          "top": [
+            24
+          ]
+        },
+        "dock": {
+          "left": [
+            14
+          ],
+          "top": [
+            24
+          ]
+        }
+      },
+      "frame": {
+        "moving": 1,
+        "dock": 1
+      }
+    },
+    {
+      "unitId": 27,
+      "name": "BattleCruiser",
+      "faction": "Terran",
+      "spriteSheet": "BattleCruiser.png",
+      "width": 94,
+      "height": 80,
+      "tier": 4,
+      "habitat": "mountain",
+      "imgPos": {
+        "moving": {
+          "left": [
+            297
+          ],
+          "top": [
+            81
+          ]
+        },
+        "dock": {
+          "left": [
+            297
+          ],
+          "top": [
+            81
+          ]
+        }
+      },
+      "frame": {
+        "moving": 1,
+        "dock": 1
+      }
+    },
+    {
+      "unitId": 28,
+      "name": "Valkyrie",
+      "faction": "Terran",
+      "spriteSheet": "Valkyrie.png",
+      "width": 58,
+      "height": 58,
+      "tier": 3,
+      "habitat": "mountain",
+      "imgPos": {
+        "moving": {
+          "left": [
+            419
+          ],
+          "top": [
+            35
+          ]
+        },
+        "dock": {
+          "left": [
+            419
+          ],
+          "top": [
+            35
+          ]
+        },
+        "attack": {
+          "left": [
+            419
+          ],
+          "top": [
+            35
+          ]
+        }
+      },
+      "frame": {
+        "moving": 1,
+        "dock": 1,
+        "attack": 1
+      }
+    },
+    {
+      "unitId": 29,
+      "name": "Civilian",
+      "faction": "Terran",
+      "spriteSheet": "Civilian.png",
+      "width": 21,
+      "height": 31,
+      "tier": 1,
+      "habitat": "grassland",
+      "imgPos": {
+        "moving": {
+          "left": [
+            154,
+            154,
+            154,
+            154,
+            154,
+            154,
+            154,
+            154
+          ],
+          "top": [
+            246,
+            0,
+            37,
+            70,
+            105,
+            142,
+            176,
+            211
+          ]
+        },
+        "dock": {
+          "left": [
+            154,
+            154,
+            154,
+            154,
+            154,
+            154,
+            154,
+            154
+          ],
+          "top": [
+            246,
+            0,
+            37,
+            70,
+            105,
+            142,
+            176,
+            211
+          ]
+        }
+      },
+      "frame": {
+        "moving": 8,
+        "dock": 1
+      }
+    },
+    {
+      "unitId": 30,
+      "name": "Probe",
+      "faction": "Protoss",
+      "spriteSheet": "Probe.png",
+      "width": 32,
+      "height": 32,
+      "tier": 1,
+      "habitat": "forest",
+      "imgPos": {
+        "moving": {
+          "left": [
+            192
+          ],
+          "top": [
+            0
+          ]
+        },
+        "dock": {
+          "left": [
+            192
+          ],
+          "top": [
+            0
+          ]
+        }
+      },
+      "frame": {
+        "moving": 1,
+        "dock": 1
+      }
+    },
+    {
+      "unitId": 31,
+      "name": "Zealot",
+      "faction": "Protoss",
+      "spriteSheet": "Zealot.png",
+      "width": 42,
+      "height": 44,
+      "tier": 1,
+      "habitat": "forest",
+      "imgPos": {
+        "moving": {
+          "left": [
+            252,
+            252,
+            252,
+            252,
+            252,
+            252,
+            252,
+            252
+          ],
+          "top": [
+            0,
+            44,
+            88,
+            132,
+            176,
+            220,
+            264,
+            308
+          ]
+        },
+        "dock": {
+          "left": [
+            252
+          ],
+          "top": [
+            0
+          ]
+        },
+        "attack": {
+          "left": [
+            252,
+            252,
+            252,
+            252,
+            252
+          ],
+          "top": [
+            352,
+            396,
+            440,
+            484,
+            528
+          ]
+        }
+      },
+      "frame": {
+        "moving": 8,
+        "dock": 1,
+        "attack": 5
+      }
+    },
+    {
+      "unitId": 32,
+      "name": "Dragoon",
+      "faction": "Protoss",
+      "spriteSheet": "Dragoon.png",
+      "width": 66,
+      "height": 66,
+      "tier": 2,
+      "habitat": "forest",
+      "imgPos": {
+        "moving": {
+          "left": [
+            15,
+            111,
+            207,
+            303,
+            399,
+            495,
+            591,
+            687
+          ],
+          "top": [
+            207,
+            207,
+            207,
+            207,
+            207,
+            207,
+            207,
+            207
+          ]
+        },
+        "dock": {
+          "left": [
+            15,
+            111,
+            207,
+            303,
+            399,
+            495,
+            591,
+            687
+          ],
+          "top": [
+            15,
+            15,
+            15,
+            15,
+            15,
+            15,
+            15,
+            15
+          ]
+        },
+        "attack": {
+          "left": [
+            15,
+            111,
+            207,
+            303,
+            399,
+            495,
+            591,
+            687,
+            495,
+            495,
+            495,
+            495
+          ],
+          "top": [
+            495,
+            495,
+            495,
+            495,
+            495,
+            495,
+            495,
+            495,
+            495,
+            495,
+            495,
+            495
+          ]
+        }
+      },
+      "frame": {
+        "moving": 8,
+        "dock": 8,
+        "attack": 12
+      }
+    },
+    {
+      "unitId": 33,
+      "name": "Templar",
+      "faction": "Protoss",
+      "spriteSheet": "Templar.png",
+      "width": 68,
+      "height": 68,
+      "tier": 2,
+      "habitat": "forest",
+      "imgPos": {
+        "moving": {
+          "left": [
+            798,
+            798,
+            798,
+            798
+          ],
+          "top": [
+            1694,
+            1822,
+            1950,
+            670
+          ]
+        },
+        "dock": {
+          "left": [
+            798,
+            798,
+            798,
+            798,
+            798,
+            798,
+            798
+          ],
+          "top": [
+            798,
+            926,
+            1054,
+            1182,
+            1310,
+            1438,
+            1566
+          ]
+        },
+        "attack": {
+          "left": [
+            798,
+            798,
+            798,
+            798,
+            798
+          ],
+          "top": [
+            30,
+            158,
+            286,
+            414,
+            542
+          ]
+        }
+      },
+      "frame": {
+        "moving": 4,
+        "dock": 7,
+        "attack": 5
+      }
+    },
+    {
+      "unitId": 34,
+      "name": "DarkTemplar",
+      "faction": "Protoss",
+      "spriteSheet": "DarkTemplar.png",
+      "width": 57,
+      "height": 62,
+      "tier": 2,
+      "habitat": "forest",
+      "imgPos": {
+        "moving": {
+          "left": [
+            345,
+            345,
+            345,
+            345,
+            345,
+            345,
+            345,
+            345,
+            345,
+            345,
+            345
+          ],
+          "top": [
+            0,
+            62,
+            124,
+            186,
+            248,
+            310,
+            372,
+            434,
+            496,
+            558,
+            620
+          ]
+        },
+        "dock": {
+          "left": [
+            345
+          ],
+          "top": [
+            248
+          ]
+        },
+        "attack": {
+          "left": [
+            345,
+            345,
+            345,
+            345,
+            345,
+            345,
+            345
+          ],
+          "top": [
+            682,
+            744,
+            806,
+            868,
+            930,
+            992,
+            1054
+          ]
+        }
+      },
+      "frame": {
+        "moving": 11,
+        "dock": 1,
+        "attack": 7
+      }
+    },
+    {
+      "unitId": 35,
+      "name": "Archon",
+      "faction": "Protoss",
+      "spriteSheet": "Archon.png",
+      "width": 80,
+      "height": 80,
+      "tier": 3,
+      "habitat": "forest",
+      "imgPos": {
+        "moving": {
+          "left": [
+            740,
+            740,
+            740,
+            740
+          ],
+          "top": [
+            1220,
+            1340,
+            1460,
+            1580
+          ]
+        },
+        "dock": {
+          "left": [
+            740,
+            740,
+            740,
+            740
+          ],
+          "top": [
+            1220,
+            1340,
+            1460,
+            1580
+          ]
+        },
+        "attack": {
+          "left": [
+            740,
+            740,
+            740,
+            740,
+            740,
+            740,
+            740,
+            740,
+            740,
+            740
+          ],
+          "top": [
+            20,
+            140,
+            260,
+            380,
+            500,
+            620,
+            740,
+            860,
+            980,
+            1100
+          ]
+        }
+      },
+      "frame": {
+        "moving": 4,
+        "dock": 4,
+        "attack": 10
+      }
+    },
+    {
+      "unitId": 36,
+      "name": "DarkArchon",
+      "faction": "Protoss",
+      "spriteSheet": "DarkArchon.png",
+      "width": 80,
+      "height": 80,
+      "tier": 4,
+      "habitat": "forest",
+      "imgPos": {
+        "moving": {
+          "left": [
+            740,
+            740,
+            740,
+            740,
+            740,
+            740,
+            740,
+            740,
+            740,
+            740
+          ],
+          "top": [
+            20,
+            140,
+            260,
+            380,
+            500,
+            620,
+            740,
+            860,
+            980,
+            1100
+          ]
+        },
+        "dock": {
+          "left": [
+            740,
+            740,
+            740,
+            740,
+            740,
+            740,
+            740,
+            740,
+            740,
+            740
+          ],
+          "top": [
+            20,
+            140,
+            260,
+            380,
+            500,
+            620,
+            740,
+            860,
+            980,
+            1100
+          ]
+        }
+      },
+      "frame": {
+        "moving": 10,
+        "dock": 10
+      }
+    },
+    {
+      "unitId": 37,
+      "name": "Shuttle",
+      "faction": "Protoss",
+      "spriteSheet": "Shuttle.png",
+      "width": 60,
+      "height": 60,
+      "tier": 5,
+      "habitat": "mountain",
+      "imgPos": {
+        "moving": {
+          "left": [
+            180
+          ],
+          "top": [
+            0
+          ]
+        },
+        "dock": {
+          "left": [
+            180
+          ],
+          "top": [
+            0
+          ]
+        }
+      },
+      "frame": {
+        "moving": 1,
+        "dock": 1
+      }
+    },
+    {
+      "unitId": 38,
+      "name": "Reaver",
+      "faction": "Protoss",
+      "spriteSheet": "Reaver.png",
+      "width": 84,
+      "height": 84,
+      "tier": 3,
+      "habitat": "forest",
+      "imgPos": {
+        "moving": {
+          "left": [
+            504,
+            504,
+            504,
+            504,
+            504,
+            504,
+            504,
+            504,
+            504
+          ],
+          "top": [
+            0,
+            84,
+            168,
+            252,
+            336,
+            420,
+            504,
+            588,
+            672
+          ]
+        },
+        "dock": {
+          "left": [
+            504
+          ],
+          "top": [
+            0
+          ]
+        },
+        "attack": {
+          "left": [
+            504
+          ],
+          "top": [
+            0
+          ]
+        }
+      },
+      "frame": {
+        "moving": 9,
+        "dock": 1,
+        "attack": 1
+      }
+    },
+    {
+      "unitId": 39,
+      "name": "Observer",
+      "faction": "Protoss",
+      "spriteSheet": "Observer.png",
+      "width": 40,
+      "height": 40,
+      "tier": 5,
+      "habitat": "mountain",
+      "imgPos": {
+        "moving": {
+          "left": [
+            240
+          ],
+          "top": [
+            0
+          ]
+        },
+        "dock": {
+          "left": [
+            240
+          ],
+          "top": [
+            0
+          ]
+        }
+      },
+      "frame": {
+        "moving": 1,
+        "dock": 1
+      }
+    },
+    {
+      "unitId": 40,
+      "name": "Scout",
+      "faction": "Protoss",
+      "spriteSheet": "Scout.png",
+      "width": 56,
+      "height": 56,
+      "tier": 3,
+      "habitat": "mountain",
+      "imgPos": {
+        "moving": {
+          "left": [
+            440
+          ],
+          "top": [
+            8
+          ]
+        },
+        "dock": {
+          "left": [
+            440
+          ],
+          "top": [
+            8
+          ]
+        },
+        "attack": {
+          "left": [
+            440,
+            440
+          ],
+          "top": [
+            8,
+            80
+          ]
+        }
+      },
+      "frame": {
+        "moving": 1,
+        "dock": 1,
+        "attack": 2
+      }
+    },
+    {
+      "unitId": 41,
+      "name": "Carrier",
+      "faction": "Protoss",
+      "spriteSheet": "Carrier.png",
+      "width": 128,
+      "height": 128,
+      "tier": 4,
+      "habitat": "mountain",
+      "imgPos": {
+        "moving": {
+          "left": [
+            1536
+          ],
+          "top": [
+            0
+          ]
+        },
+        "dock": {
+          "left": [
+            1536
+          ],
+          "top": [
+            0
+          ]
+        },
+        "attack": {
+          "left": [
+            1536
+          ],
+          "top": [
+            0
+          ]
+        }
+      },
+      "frame": {
+        "moving": 1,
+        "dock": 1,
+        "attack": 1
+      }
+    },
+    {
+      "unitId": 42,
+      "name": "Arbiter",
+      "faction": "Protoss",
+      "spriteSheet": "Arbiter.png",
+      "width": 76,
+      "height": 76,
+      "tier": 4,
+      "habitat": "mountain",
+      "imgPos": {
+        "moving": {
+          "left": [
+            456
+          ],
+          "top": [
+            0
+          ]
+        },
+        "dock": {
+          "left": [
+            456
+          ],
+          "top": [
+            0
+          ]
+        }
+      },
+      "frame": {
+        "moving": 1,
+        "dock": 1
+      }
+    },
+    {
+      "unitId": 43,
+      "name": "Corsair",
+      "faction": "Protoss",
+      "spriteSheet": "Corsair.png",
+      "width": 60,
+      "height": 60,
+      "tier": 5,
+      "habitat": "mountain",
+      "imgPos": {
+        "moving": {
+          "left": [
+            180
+          ],
+          "top": [
+            0
+          ]
+        },
+        "dock": {
+          "left": [
+            180
+          ],
+          "top": [
+            0
+          ]
+        },
+        "attack": {
+          "left": [
+            180,
+            180,
+            180,
+            180,
+            180
+          ],
+          "top": [
+            0,
+            60,
+            120,
+            180,
+            240
+          ]
+        }
+      },
+      "frame": {
+        "moving": 1,
+        "dock": 1,
+        "attack": 5
+      }
+    },
+    {
+      "unitId": 44,
+      "name": "Ragnasaur",
+      "faction": "Neutral",
+      "spriteSheet": "Ragnasaur.png",
+      "width": 52,
+      "height": 52,
+      "tier": 5,
+      "habitat": "forest",
+      "imgPos": {
+        "moving": {
+          "left": [
+            650,
+            650,
+            650,
+            650,
+            650,
+            650,
+            650,
+            650,
+            650
+          ],
+          "top": [
+            26,
+            130,
+            234,
+            338,
+            442,
+            546,
+            650,
+            754,
+            858
+          ]
+        },
+        "dock": {
+          "left": [
+            650,
+            650,
+            650,
+            650,
+            650,
+            650,
+            650,
+            650,
+            650
+          ],
+          "top": [
+            26,
+            130,
+            234,
+            338,
+            442,
+            546,
+            650,
+            754,
+            858
+          ]
+        }
+      },
+      "frame": {
+        "moving": 9,
+        "dock": 1
+      }
+    },
+    {
+      "unitId": 45,
+      "name": "Rhynsdon",
+      "faction": "Neutral",
+      "spriteSheet": "Rhynsdon.png",
+      "width": 52,
+      "height": 52,
+      "tier": 5,
+      "habitat": "forest",
+      "imgPos": {
+        "moving": {
+          "left": [
+            650,
+            650,
+            650,
+            650,
+            650,
+            650,
+            650,
+            650,
+            650,
+            650,
+            650
+          ],
+          "top": [
+            26,
+            130,
+            234,
+            338,
+            442,
+            546,
+            650,
+            754,
+            858,
+            962,
+            1066
+          ]
+        },
+        "dock": {
+          "left": [
+            650,
+            650,
+            650,
+            650,
+            650,
+            650,
+            650,
+            650,
+            650,
+            650,
+            650
+          ],
+          "top": [
+            26,
+            130,
+            234,
+            338,
+            442,
+            546,
+            650,
+            754,
+            858,
+            962,
+            1066
+          ]
+        }
+      },
+      "frame": {
+        "moving": 11,
+        "dock": 1
+      }
+    },
+    {
+      "unitId": 46,
+      "name": "Ursadon",
+      "faction": "Neutral",
+      "spriteSheet": "Ursadon.png",
+      "width": 62,
+      "height": 62,
+      "tier": 5,
+      "habitat": "forest",
+      "imgPos": {
+        "moving": {
+          "left": [
+            567,
+            567,
+            567,
+            567,
+            567,
+            567,
+            567,
+            567
+          ],
+          "top": [
+            15,
+            107,
+            199,
+            291,
+            383,
+            475,
+            567,
+            659
+          ]
+        },
+        "dock": {
+          "left": [
+            567,
+            567,
+            567,
+            567,
+            567,
+            567,
+            567,
+            567
+          ],
+          "top": [
+            15,
+            107,
+            199,
+            291,
+            383,
+            475,
+            567,
+            659
+          ]
+        }
+      },
+      "frame": {
+        "moving": 8,
+        "dock": 1
+      }
+    },
+    {
+      "unitId": 47,
+      "name": "Bengalaas",
+      "faction": "Neutral",
+      "spriteSheet": "Bengalaas.png",
+      "width": 52,
+      "height": 52,
+      "tier": 5,
+      "habitat": "forest",
+      "imgPos": {
+        "moving": {
+          "left": [
+            806,
+            806,
+            806,
+            806,
+            806,
+            806,
+            806,
+            806,
+            806,
+            806,
+            806,
+            806
+          ],
+          "top": [
+            38,
+            166,
+            294,
+            422,
+            550,
+            678,
+            806,
+            934,
+            1062,
+            1190,
+            1318,
+            1446
+          ]
+        },
+        "dock": {
+          "left": [
+            806,
+            806,
+            806,
+            806,
+            806,
+            806,
+            806,
+            806,
+            806,
+            806,
+            806,
+            806
+          ],
+          "top": [
+            38,
+            166,
+            294,
+            422,
+            550,
+            678,
+            806,
+            934,
+            1062,
+            1190,
+            1318,
+            1446
+          ]
+        }
+      },
+      "frame": {
+        "moving": 12,
+        "dock": 1
+      }
+    },
+    {
+      "unitId": 48,
+      "name": "Scantid",
+      "faction": "Neutral",
+      "spriteSheet": "Scantid.png",
+      "width": 68,
+      "height": 68,
+      "tier": 5,
+      "habitat": "forest",
+      "imgPos": {
+        "moving": {
+          "left": [
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564
+          ],
+          "top": [
+            12,
+            104,
+            196,
+            288,
+            380,
+            472,
+            564,
+            656,
+            748,
+            840,
+            932,
+            1024
+          ]
+        },
+        "dock": {
+          "left": [
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564
+          ],
+          "top": [
+            12,
+            104,
+            196,
+            288,
+            380,
+            472,
+            564,
+            656,
+            748,
+            840,
+            932,
+            1024
+          ]
+        }
+      },
+      "frame": {
+        "moving": 12,
+        "dock": 1
+      }
+    },
+    {
+      "unitId": 49,
+      "name": "Kakaru",
+      "faction": "Neutral",
+      "spriteSheet": "Kakaru.png",
+      "width": 68,
+      "height": 68,
+      "tier": 5,
+      "habitat": "forest",
+      "imgPos": {
+        "moving": {
+          "left": [
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564
+          ],
+          "top": [
+            12,
+            104,
+            196,
+            288,
+            380,
+            472,
+            564,
+            656,
+            748,
+            840,
+            932,
+            1024
+          ]
+        },
+        "dock": {
+          "left": [
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564,
+            564
+          ],
+          "top": [
+            12,
+            104,
+            196,
+            288,
+            380,
+            472,
+            564,
+            656,
+            748,
+            840,
+            932,
+            1024
+          ]
+        }
+      },
+      "frame": {
+        "moving": 12,
+        "dock": 12
+      }
+    }
+  ]
+}

@@ -8,9 +8,9 @@
   const SUBAGENT_DRAW_SIZE = 19;
   const ENTITY_EDGE_PAD = 8;
   const OVERLAY_EDGE_PAD = 2;
-  const POKEDEX_MIN = 1;
-  const POKEDEX_MAX = 251;
-  const POKEDEX_TOTAL = POKEDEX_MAX - POKEDEX_MIN + 1;
+  var SC_UNIT_MIN = 1;
+  var SC_UNIT_MAX = 49;
+  var SC_UNIT_TOTAL = 49;
   const RING_SLOTS = 6;
   const RING_BASE_RADIUS = 30;
   const RING_STEP = 22;
@@ -24,12 +24,10 @@
   const PROMO_EXPORT_SCALE = 2;
   const PROMO_STATUSES = ['Idle', 'Thinking', 'Tool-Running', 'Outputting', 'Waiting', 'Sleeping'];
 
-  // Pokeball spawn/despawn animation constants
-  const SPAWN_DURATION_MS = 900;   // total spawn animation
-  const DESPAWN_DURATION_MS = 700; // total despawn animation
-  const BALL_SHAKE_MS = 300;       // ball wiggle phase
-  const BALL_OPEN_MS = 300;        // ball opens + flash
-  const APPEAR_MS = 300;           // monster fades in
+  // Spawn/despawn animation constants
+  const SPAWN_DURATION_MS = 600;   // total spawn animation (warp-in flash)
+  const DESPAWN_DURATION_MS = 500; // total despawn animation
+  const APPEAR_MS = 300;           // unit fades in
 
   // ── Area mask system ──
   // The area_mask.png encodes each region as a unique solid color.
@@ -191,52 +189,15 @@
     return getAreaAtPixel(x, y) === areaIndex;
   }
 
-  // Map habitat strings from pokemon_data.json to area indices
+  // Map habitat strings from sc_unit_data.json to area indices
   const HABITAT_TO_AREA = {
     'mountain': 0, 'cave': 1, 'forest': 2, 'rare': 3,
     'rough-terrain': 4, 'grassland': 5, 'urban': 6,
     'waters-edge': 7, 'sea': 8
   };
 
-  const EVOLUTION_PATHS = {
-    1: [1], 2: [1, 2], 3: [1, 2, 3], 4: [4], 5: [4, 5], 6: [4, 5, 6],
-    7: [7], 8: [7, 8], 9: [7, 8, 9], 10: [10], 11: [10, 11], 12: [10, 11, 12],
-    13: [13], 14: [13, 14], 15: [13, 14, 15], 16: [16], 17: [16, 17], 18: [16, 17, 18],
-    19: [19], 20: [19, 20], 21: [21], 22: [21, 22], 23: [23], 24: [23, 24],
-    25: [25], 26: [25, 26], 27: [27], 28: [27, 28], 29: [29], 30: [29, 30], 31: [29, 30, 31],
-    32: [32], 33: [32, 33], 34: [32, 33, 34], 35: [35], 36: [35, 36], 37: [37], 38: [37, 38],
-    39: [39], 40: [39, 40], 41: [41], 42: [41, 42], 43: [43], 44: [43, 44], 45: [43, 44, 45],
-    46: [46], 47: [46, 47], 48: [48], 49: [48, 49], 50: [50], 51: [50, 51],
-    52: [52], 53: [52, 53], 54: [54], 55: [54, 55], 56: [56], 57: [56, 57],
-    58: [58], 59: [58, 59], 60: [60], 61: [60, 61], 62: [60, 61, 62], 63: [63], 64: [63, 64], 65: [63, 64, 65],
-    66: [66], 67: [66, 67], 68: [66, 67, 68], 69: [69], 70: [69, 70], 71: [69, 70, 71],
-    72: [72], 73: [72, 73], 74: [74], 75: [74, 75], 76: [74, 75, 76], 77: [77], 78: [77, 78],
-    79: [79], 80: [79, 80], 81: [81], 82: [81, 82], 83: [83], 84: [84], 85: [84, 85],
-    86: [86], 87: [86, 87], 88: [88], 89: [88, 89], 90: [90], 91: [90, 91], 92: [92], 93: [92, 93], 94: [92, 93, 94],
-    95: [95], 96: [96], 97: [96, 97], 98: [98], 99: [98, 99], 100: [100], 101: [100, 101],
-    102: [102], 103: [102, 103], 104: [104], 105: [104, 105], 106: [106], 107: [107], 108: [108],
-    109: [109], 110: [109, 110], 111: [111], 112: [111, 112], 113: [113], 114: [114], 115: [115],
-    116: [116], 117: [116, 117], 118: [118], 119: [118, 119], 120: [120], 121: [120, 121],
-    122: [122], 123: [123], 124: [124], 125: [125], 126: [126], 127: [127], 128: [128],
-    129: [129], 130: [129, 130], 131: [131], 132: [132], 133: [133], 134: [133, 134], 135: [133, 135], 136: [133, 136],
-    137: [137], 138: [138], 139: [138, 139], 140: [140], 141: [140, 141], 142: [142], 143: [143],
-    144: [144], 145: [145], 146: [146], 147: [147], 148: [147, 148], 149: [147, 148, 149],
-    150: [150], 151: [151],
-    152: [152], 153: [152, 153], 154: [152, 153, 154], 155: [155], 156: [155, 156], 157: [155, 156, 157],
-    158: [158], 159: [158, 159], 160: [158, 159, 160], 161: [161], 162: [161, 162], 163: [163], 164: [163, 164],
-    165: [165], 166: [165, 166], 167: [167], 168: [167, 168], 169: [41, 42, 169], 170: [170], 171: [170, 171],
-    172: [172], 173: [173], 174: [174], 175: [175], 176: [175, 176], 177: [177], 178: [177, 178],
-    179: [179], 180: [179, 180], 181: [179, 180, 181], 182: [43, 44, 182], 183: [183], 184: [183, 184],
-    185: [95, 185], 186: [60, 61, 186], 187: [187], 188: [187, 188], 189: [187, 188, 189], 190: [190],
-    191: [191], 192: [191, 192], 193: [193], 194: [194], 195: [194, 195], 196: [133, 196], 197: [133, 197],
-    198: [198], 199: [79, 199], 200: [200], 201: [201], 202: [202], 203: [203], 204: [204], 205: [204, 205],
-    206: [206], 207: [207], 208: [95, 208], 209: [209], 210: [209, 210], 211: [211], 212: [123, 212],
-    213: [213], 214: [214], 215: [215], 216: [216], 217: [216, 217], 218: [218], 219: [218, 219],
-    220: [220], 221: [220, 221], 222: [222], 223: [223], 224: [223, 224], 225: [225], 226: [226], 227: [227],
-    228: [228], 229: [228, 229], 230: [116, 117, 230], 231: [231], 232: [231, 232], 233: [137, 233], 234: [234],
-    235: [235], 236: [236], 237: [236, 237], 238: [238], 239: [239], 240: [240], 241: [241], 242: [113, 242],
-    243: [243], 244: [244], 245: [245], 246: [246], 247: [246, 247], 248: [246, 247, 248], 249: [249], 250: [250], 251: [251]
-  };
+  // Faction pools — built dynamically from SC unit data
+  var factionPools = {};  // faction → [unitId, ...]
 
   const colorSeeds = [
     ['#5b8f5a', '#3f6e3d', '#cde8b5'],
@@ -315,7 +276,7 @@
       agents: [],
       activeAgentCount: 0,
       config: { enablePokeapiSprites: true },
-      pokedex: { seenPokemonIds: [], firstDiscoveryByPokemon: {}, discoveredCount: 0, totalCount: POKEDEX_TOTAL }
+      pokedex: { seenPokemonIds: [], firstDiscoveryByPokemon: {}, discoveredCount: 0, totalCount: SC_UNIT_TOTAL }
     },
     liveSnapshot: null,
     entityById: new Map(),
@@ -346,7 +307,7 @@
     return {
       id: createPromoId('promo-sub'),
       label: 'Sub Agent',
-      pokemonId: promoClampInt(parentPokemonId, POKEDEX_MIN, POKEDEX_MAX, 133),
+      pokemonId: promoClampInt(parentPokemonId, SC_UNIT_MIN, SC_UNIT_MAX, 2),
       level: 8,
       exp: 3600,
       hp: 86,
@@ -358,7 +319,7 @@
     var root = {
       id: createPromoId('promo-root'),
       label: 'Main Agent',
-      pokemonId: 25,
+      pokemonId: 1,
       level: 18,
       exp: 6200,
       hp: 100,
@@ -383,7 +344,7 @@
     return {
       id: (raw && raw.id) || fallback.id,
       label: raw && typeof raw.label === 'string' ? raw.label.slice(0, 40) : fallback.label,
-      pokemonId: promoClampInt(raw && raw.pokemonId, POKEDEX_MIN, POKEDEX_MAX, fallback.pokemonId),
+      pokemonId: promoClampInt(raw && raw.pokemonId, SC_UNIT_MIN, SC_UNIT_MAX, fallback.pokemonId),
       level: level,
       exp: promoClampInt(raw && raw.exp, 0, level >= 100 ? 0 : needed, fallback.exp),
       hp: promoClampInt(raw && raw.hp, 0, 100, fallback.hp),
@@ -437,7 +398,7 @@
     var rawSeenIds = Array.isArray(normalized.seenPokemonIds) ? normalized.seenPokemonIds : [];
     for (var i = 0; i < rawSeenIds.length; i++) {
       var pokemonId = Number(rawSeenIds[i]);
-      if (!Number.isInteger(pokemonId) || pokemonId < POKEDEX_MIN || pokemonId > POKEDEX_MAX || seenLookup[pokemonId]) {
+      if (!Number.isInteger(pokemonId) || pokemonId < SC_UNIT_MIN || pokemonId > SC_UNIT_MAX || seenLookup[pokemonId]) {
         continue;
       }
       seenLookup[pokemonId] = true;
@@ -460,7 +421,7 @@
       seenPokemonIds: seenPokemonIds,
       firstDiscoveryByPokemon: firstDiscoveryByPokemon,
       discoveredCount: seenPokemonIds.length,
-      totalCount: POKEDEX_TOTAL
+      totalCount: SC_UNIT_TOTAL
     };
   }
 
@@ -614,87 +575,158 @@
     return Math.abs(h >>> 0);
   }
 
-  // ── Weighted Pokemon spawn by rarity tier ──
+  // ── Weighted SC unit spawn by rarity tier ──
   // Tier weights: Common spawns ~40x more often than Legendary
   var TIER_WEIGHTS = { 1: 40, 2: 25, 3: 15, 4: 5, 5: 1 };
-  var pokemonPool = [];       // weighted array of pokemon IDs
+  var pokemonPool = [];       // weighted array of unit IDs
   var pokemonPoolReady = false;
-  var agentPokemonCache = {}; // agentId → pokemon_id (stable assignment)
-  var subagentPokemonCache = {}; // subagent agentId → rendered pokemon_id
-  var pokemonHabitat = {};    // pokemon_id → habitat string (e.g. 'cave', 'forest')
-  var pokemonNames = {};      // pokemon_id → display name
-  var pokemonKoNames = {};    // pokemon_id → Korean display name
-  var pokemonRarityLabels = {}; // pokemon_id → rarity label
-  var pokemonRarityTiers = {};  // pokemon_id → rarity tier number
+  var agentPokemonCache = {}; // agentId → unit_id (stable assignment)
+  var subagentPokemonCache = {}; // subagent agentId → rendered unit_id
+  var pokemonHabitat = {};    // unit_id → habitat string (e.g. 'cave', 'forest')
+  var pokemonNames = {};      // unit_id → display name
+  var pokemonRarityLabels = {}; // unit_id → rarity label (tier_label)
+  var pokemonRarityTiers = {};  // unit_id → rarity tier number
 
-  // Per-area weighted pools: areaIndex → [pokemon_id, ...]
+  // Per-area weighted pools: areaIndex → [unit_id, ...]
   var areaPoolMap = {};
 
-  (function loadPokemonData() {
+  // SC sprite sheet system
+  var scUnitData = {};        // unitId → full unit metadata
+  var scSpriteSheets = {};    // spriteSheet filename → Image object (preloaded)
+  var scSpriteDataUrls = {};  // cacheKey → data:image/png URL (for <img> contexts)
+
+  function preloadSpriteSheet(spriteSheetName) {
+    if (scSpriteSheets[spriteSheetName]) return scSpriteSheets[spriteSheetName];
+    var img = new Image();
+    img.src = '/sprites/sheet/' + spriteSheetName;
+    scSpriteSheets[spriteSheetName] = img;
+    return img;
+  }
+
+  function getAnimState(status, unitMeta) {
+    if (!unitMeta || !unitMeta.imgPos) return 'dock';
+    switch (status) {
+      case 'Thinking': return unitMeta.imgPos.dock ? 'dock' : 'moving';
+      case 'Tool-Running': return unitMeta.imgPos.attack ? 'attack' : 'moving';
+      case 'Sleeping': return unitMeta.imgPos.dock ? 'dock' : 'moving';
+      case 'Outputting': return 'moving';
+      case 'Waiting': return unitMeta.imgPos.dock ? 'dock' : 'moving';
+      case 'Idle': return unitMeta.imgPos.dock ? 'dock' : 'moving';
+      default: return unitMeta.imgPos.dock ? 'dock' : 'moving';
+    }
+  }
+
+  function drawSCSprite(ctx, unitMeta, animState, frameIndex, destX, destY, destW, destH) {
+    var sheet = scSpriteSheets[unitMeta.spriteSheet];
+    if (!sheet || !sheet.complete || !sheet.naturalWidth) return;
+
+    var posData = unitMeta.imgPos[animState];
+    if (!posData) {
+      posData = unitMeta.imgPos.dock || unitMeta.imgPos.moving;
+    }
+    if (!posData) return;
+
+    var numFrames = unitMeta.frame[animState] || 1;
+    var frame = frameIndex % numFrames;
+
+    var srcX = posData.left[frame];
+    var srcY = posData.top[frame];
+
+    if (srcX === -1 || srcX === undefined) return;  // hidden frame
+
+    ctx.drawImage(
+      sheet,
+      srcX, srcY, unitMeta.width, unitMeta.height,  // source rect
+      destX, destY, destW || unitMeta.width, destH || unitMeta.height  // dest rect
+    );
+  }
+
+  // Generate data URL for <img> contexts (panel, tooltip, box)
+  function getSCDataUrl(unitId, status) {
+    var unitMeta = scUnitData[unitId];
+    if (!unitMeta) return '';
+    var animState = getAnimState(status || 'Idle', unitMeta);
+    var key = unitId + ':' + animState;
+    if (scSpriteDataUrls[key]) return scSpriteDataUrls[key];
+
+    var sheet = scSpriteSheets[unitMeta.spriteSheet];
+    if (!sheet || !sheet.complete || !sheet.naturalWidth) return '';
+
+    var c = document.createElement('canvas');
+    c.width = unitMeta.width;
+    c.height = unitMeta.height;
+    var g = c.getContext('2d');
+    g.imageSmoothingEnabled = false;
+    drawSCSprite(g, unitMeta, animState, 0, 0, 0, unitMeta.width, unitMeta.height);
+
+    var url = c.toDataURL('image/png');
+    scSpriteDataUrls[key] = url;
+    return url;
+  }
+
+  (function loadSCUnitData() {
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', '/data/pokemon_data.json');
+    xhr.open('GET', '/data/sc_unit_data.json');
     xhr.onload = function () {
       if (xhr.status !== 200) return;
       try {
         var data = JSON.parse(xhr.responseText);
         var pool = [];
         var areaPools = {};
-        for (var i = 0; i < data.pokemon.length; i++) {
-          var p = data.pokemon[i];
-          if (p.pokemon_id < POKEDEX_MIN || p.pokemon_id > POKEDEX_MAX) continue;
-          var w = TIER_WEIGHTS[p.final_tier] || 1;
+        var fPools = {};
+        var ids = [];
+        for (var i = 0; i < data.units.length; i++) {
+          var u = data.units[i];
+          var uid = u.unitId;
+          ids.push(uid);
+          // Store full metadata
+          scUnitData[uid] = u;
+          // Preload sprite sheet
+          preloadSpriteSheet(u.spriteSheet);
+
+          var w = TIER_WEIGHTS[u.tier] || 1;
           for (var j = 0; j < w; j++) {
-            pool.push(p.pokemon_id);
+            pool.push(uid);
           }
-          // Store habitat lookup
-          if (p.habitat) {
-            pokemonHabitat[p.pokemon_id] = p.habitat;
+          if (u.habitat) {
+            pokemonHabitat[uid] = u.habitat;
           }
-          if (p.name) {
-            pokemonNames[p.pokemon_id] = formatPokemonName(p.name);
+          if (u.name) {
+            pokemonNames[uid] = u.name;
           }
-          if (p.tier_label) {
-            pokemonRarityLabels[p.pokemon_id] = p.tier_label;
-          }
-          if (Number.isInteger(p.final_tier)) {
-            pokemonRarityTiers[p.pokemon_id] = p.final_tier;
-          }
+          // Build tier label from tier number
+          var tierLabels = { 1: 'Common', 2: 'Uncommon', 3: 'Rare', 4: 'Epic', 5: 'Legendary' };
+          pokemonRarityLabels[uid] = tierLabels[u.tier] || 'Unknown';
+          pokemonRarityTiers[uid] = u.tier;
+
           // Build per-area pools
-          var areaIdx = HABITAT_TO_AREA[p.habitat];
+          var areaIdx = HABITAT_TO_AREA[u.habitat];
           if (areaIdx !== undefined) {
             if (!areaPools[areaIdx]) areaPools[areaIdx] = [];
             for (var j = 0; j < w; j++) {
-              areaPools[areaIdx].push(p.pokemon_id);
+              areaPools[areaIdx].push(uid);
             }
+          }
+          // Build faction pools
+          if (u.faction) {
+            if (!fPools[u.faction]) fPools[u.faction] = [];
+            fPools[u.faction].push(uid);
           }
         }
         pokemonPool = pool;
         areaPoolMap = areaPools;
+        factionPools = fPools;
         pokemonPoolReady = true;
-        renderPokedex();
-        renderPromoStudio();
-      } catch (e) {
-        // Fallback: uniform 1-251
-      }
-    };
-    xhr.send();
-  })();
-
-  (function loadPokemonKoNames() {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', '/data/pokemon_names_ko.json');
-    xhr.onload = function () {
-      if (xhr.status !== 200) return;
-      try {
-        var data = JSON.parse(xhr.responseText);
-        for (var id in data) {
-          if (!Object.prototype.hasOwnProperty.call(data, id)) continue;
-          pokemonKoNames[Number(id)] = data[id];
+        // Update bounds from data
+        if (ids.length > 0) {
+          SC_UNIT_MIN = Math.min.apply(null, ids);
+          SC_UNIT_MAX = Math.max.apply(null, ids);
+          SC_UNIT_TOTAL = ids.length;
         }
         renderPokedex();
         renderPromoStudio();
-      } catch (_) {
-        // Keep English fallback if the mapping file is unavailable or malformed.
+      } catch (e) {
+        // Fallback: uniform 1-49
       }
     };
     xhr.send();
@@ -713,7 +745,7 @@
     }
     // Data not loaded yet — return temp value without caching so it gets
     // re-evaluated once the pool is ready on the next render cycle.
-    return (hashCode(agentId) % POKEDEX_TOTAL) + POKEDEX_MIN;
+    return (hashCode(agentId) % SC_UNIT_TOTAL) + SC_UNIT_MIN;
   }
 
   function pickHistoricalAgent(candidates, beforeTs) {
@@ -783,18 +815,22 @@
     var agent = findHistoricalAgentById(agentId, beforeTs);
     if (!agent) return null;
     var pokemonId = Number(agent.forcedPokemonId);
-    if (!Number.isInteger(pokemonId) || pokemonId < POKEDEX_MIN || pokemonId > POKEDEX_MAX) {
+    if (!Number.isInteger(pokemonId) || pokemonId < SC_UNIT_MIN || pokemonId > SC_UNIT_MAX) {
       return null;
     }
     return pokemonId;
   }
 
-  function getEvolutionPath(pokemonId) {
-    return EVOLUTION_PATHS[pokemonId] || [pokemonId];
+  function getFactionPool(unitId) {
+    var meta = scUnitData[unitId];
+    if (meta && meta.faction && factionPools[meta.faction]) {
+      return factionPools[meta.faction];
+    }
+    return [unitId];
   }
 
   function getRenderPokemonId(agent) {
-    if (!agent) return POKEDEX_MIN;
+    if (!agent) return SC_UNIT_MIN;
     if (agent.forcedPokemonId) {
       return agent.forcedPokemonId;
     }
@@ -807,7 +843,7 @@
 
     var parentAgent = getAgentById(agent.parentId, agent.createdAt);
     var parentPokemonId = parentAgent ? getRenderPokemonId(parentAgent) : getPokemonId(agent.parentId);
-    var candidates = getEvolutionPath(parentPokemonId);
+    var candidates = getFactionPool(parentPokemonId);
     var selected = candidates[hashCode(agent.agentId) % candidates.length];
     if (parentAgent) {
       subagentPokemonCache[agent.agentId] = selected;
@@ -825,23 +861,16 @@
 
   function formatPokemonName(name) {
     if (!name) return 'Unknown';
-    return String(name)
-      .split('-')
-      .map(function (part) {
-        if (!part) return '';
-        return part.charAt(0).toUpperCase() + part.slice(1);
-      })
-      .join(' ');
+    return String(name);
   }
 
   function getPokemonName(pokemonId) {
-    return pokemonNames[pokemonId] || ('Pokemon ' + pokemonId);
+    var meta = scUnitData[pokemonId];
+    if (meta && meta.name) return meta.name;
+    return pokemonNames[pokemonId] || ('Unit ' + pokemonId);
   }
 
   function pokemonDisplayName(pokemonId) {
-    if (uiState.pokedexLanguage === 'ko') {
-      return pokemonKoNames[pokemonId] || getPokemonName(pokemonId);
-    }
     return getPokemonName(pokemonId);
   }
 
@@ -998,207 +1027,27 @@
     return idx;
   }
 
-  class LocalSpriteProvider {
-    constructor() {
-      this.cache = new Map();
-    }
-
-    getSprite(agent, frame, status) {
-      const palette = colorSeeds[hashCode(agent.agentId) % colorSeeds.length];
-      const key = palette.join('|') + ':' + status + ':' + frame;
-      if (this.cache.has(key)) return this.cache.get(key);
-
-      const sprite = document.createElement('canvas');
-      sprite.width = SPRITE_SIZE;
-      sprite.height = SPRITE_SIZE;
-      const ctx = sprite.getContext('2d');
-      ctx.imageSmoothingEnabled = false;
-
-      const body = palette[0];
-      const outline = palette[1];
-      const light = palette[2];
-      const bob = (status === 'Idle' || status === 'Sleeping') ? (frame % 2 === 0 ? 0 : 1) : 0;
-
-      function px(x, y, color) {
-        ctx.fillStyle = color;
-        ctx.fillRect(x, y + bob, 1, 1);
-      }
-
-      for (let y = 5; y <= 11; y += 1) {
-        for (let x = 4; x <= 11; x += 1) px(x, y, body);
-      }
-      for (let y = 4; y <= 12; y += 1) { px(3, y, outline); px(12, y, outline); }
-      for (let x = 3; x <= 12; x += 1) { px(x, 4, outline); px(x, 12, outline); }
-      px(5, 4, body); px(10, 4, body); px(4, 3, outline); px(11, 3, outline);
-      px(6, 7, '#111'); px(9, 7, '#111'); px(7, 9, light); px(8, 9, light);
-
-      if (status === 'Outputting') {
-        px(7, 10, '#111'); px(8, 10, '#111');
-        if (frame % 2 === 0) px(9, 10, '#111');
-      }
-      if (status === 'Tool-Running') {
-        const offset = frame % 3;
-        px(12, 8 + (offset === 0 ? -1 : offset === 2 ? 1 : 0), '#e9e2d0');
-        px(13, 8, '#111');
-      }
-      if (status === 'Waiting') px(7, 10, '#111');
-      if (status === 'Thinking') px(7, 6, light);
-
-      this.cache.set(key, sprite);
-      return sprite;
-    }
-  }
-
-  class PokeApiSpriteProvider {
-    constructor(localProvider) {
-      this.localProvider = localProvider;
-      this.urls = new Map();
-      this.failedIds = new Set();
-      this.sleepScaleCache = new Map();
-      this.sleepScalePending = new Set();
-    }
-
+  class SCSpriteProvider {
     getSpriteUrl(agent, sleeping) {
-      const id = getPokemonId(agent.agentId);
-      if (this.failedIds.has(id)) return null;
-      var spec = pokemonSpriteSpec(sleeping);
-      var folder = spec.folder;
-      var cacheKey = folder + ':' + id;
-      if (this.urls.has(cacheKey)) return this.urls.get(cacheKey);
-      var url = '/sprites/' + folder + '/' + id + '.' + spec.ext;
-      this.urls.set(cacheKey, url);
-      // Preload to detect failures
-      var img = new Image();
-      img.onerror = () => { this.failedIds.add(id); this.urls.delete(cacheKey); };
-      img.src = url;
-      return url;
-    }
-
-    getSprite(agent, frame, status) {
-      return this.localProvider.getSprite(agent, frame, status);
+      return unitSpriteUrl(agent, sleeping);
     }
 
     getSleepScale(agent) {
-      var id = getRenderPokemonId(agent);
-      if (this.sleepScaleCache.has(id)) {
-        return this.sleepScaleCache.get(id);
-      }
-      this.primeSleepScale(id);
-      return FALLBACK_SLEEP_SPRITE_SCALE;
+      return 1.0;  // SC sprites don't need the sleep/active ratio scaling
     }
 
-    primeSleepScale(id) {
-      if (!id || this.sleepScalePending.has(id)) return;
-
-      this.sleepScalePending.add(id);
-
-      var staticImg = new Image();
-      var animatedImg = new Image();
-      var staticMax = 96;
-      var animatedMax = 96;
-      var remaining = 2;
-      var self = this;
-
-      function finish() {
-        remaining -= 1;
-        if (remaining > 0) return;
-        self.sleepScalePending.delete(id);
-        var rawScale = staticMax / Math.max(1, animatedMax);
-        var finalScale = clamp(rawScale, MIN_SLEEP_SPRITE_SCALE, MAX_SLEEP_SPRITE_SCALE);
-        self.sleepScaleCache.set(id, finalScale);
-      }
-
-      staticImg.onload = function () {
-        staticMax = Math.max(staticImg.naturalWidth || 0, staticImg.naturalHeight || 0, 1);
-        finish();
-      };
-      staticImg.onerror = finish;
-
-      animatedImg.onload = function () {
-        animatedMax = Math.max(animatedImg.naturalWidth || 0, animatedImg.naturalHeight || 0, 1);
-        finish();
-      };
-      animatedImg.onerror = finish;
-
-      staticImg.src = '/sprites/static/' + id + '.png';
-      animatedImg.src = '/sprites/animated/' + id + '.gif';
+    getSprite(agent, frame, status) {
+      return null;  // not used — we draw directly on canvas
     }
   }
 
-  const localProvider = new LocalSpriteProvider();
-  const pokeProvider = new PokeApiSpriteProvider(localProvider);
-  const FALLBACK_SLEEP_SPRITE_SCALE = 1.9;
-  const MIN_SLEEP_SPRITE_SCALE = 0.6;
-  const MAX_SLEEP_SPRITE_SCALE = 2.8;
+  const scProvider = new SCSpriteProvider();
 
   function spriteProvider() {
-    return appState.snapshot.config && appState.snapshot.config.enablePokeapiSprites ? pokeProvider : localProvider;
+    return scProvider;
   }
 
-  // --- Pokeball sprite (16x16 pixel art, drawn once) ---
-  const pokeballSprite = (function () {
-    const c = document.createElement('canvas');
-    c.width = 16; c.height = 16;
-    const g = c.getContext('2d');
-    g.imageSmoothingEnabled = false;
-    function px(x, y, color) { g.fillStyle = color; g.fillRect(x, y, 1, 1); }
-    var O = '#222', R = '#e03030', W = '#f8f8f8', L = '#c02020', G = '#aaa';
-    // Top half (red)
-    for (var x = 4; x <= 11; x++) px(x, 1, O);
-    for (var x = 3; x <= 12; x++) px(x, 2, O);
-    px(3, 2, O); px(12, 2, O);
-    for (var x = 4; x <= 11; x++) px(x, 2, R);
-    px(2, 3, O); for (var x = 3; x <= 12; x++) px(x, 3, R); px(13, 3, O);
-    px(1, 4, O); for (var x = 2; x <= 13; x++) px(x, 4, R); px(14, 4, O);
-    px(1, 5, O); for (var x = 2; x <= 13; x++) px(x, 5, R); px(14, 5, O);
-    px(1, 6, O); for (var x = 2; x <= 13; x++) px(x, 6, R); px(14, 6, O);
-    // Highlight
-    px(4, 3, L); px(5, 3, '#f06060'); px(4, 4, '#f06060'); px(5, 4, '#f88'); px(5, 5, '#f06060');
-    // Center band
-    px(1, 7, O); for (var x = 2; x <= 13; x++) px(x, 7, G); px(14, 7, O);
-    px(1, 8, O); for (var x = 2; x <= 13; x++) px(x, 8, G); px(14, 8, O);
-    // Button
-    px(6, 7, O); px(9, 7, O); px(6, 8, O); px(9, 8, O);
-    px(7, 7, W); px(8, 7, W); px(7, 8, W); px(8, 8, W);
-    px(7, 6, O); px(8, 6, O); px(7, 9, O); px(8, 9, O);
-    // Bottom half (white)
-    px(1, 9, O); for (var x = 2; x <= 13; x++) px(x, 9, W); px(14, 9, O);
-    px(1, 10, O); for (var x = 2; x <= 13; x++) px(x, 10, W); px(14, 10, O);
-    px(1, 11, O); for (var x = 2; x <= 13; x++) px(x, 11, W); px(14, 11, O);
-    px(2, 12, O); for (var x = 3; x <= 12; x++) px(x, 12, W); px(13, 12, O);
-    px(3, 13, O); for (var x = 4; x <= 11; x++) px(x, 13, W); px(12, 13, O);
-    for (var x = 4; x <= 11; x++) px(x, 14, O);
-    return c;
-  })();
-
-  // Open pokeball sprite (top half lifted)
-  const pokeballOpenSprite = (function () {
-    var c = document.createElement('canvas');
-    c.width = 16; c.height = 16;
-    var g = c.getContext('2d');
-    g.imageSmoothingEnabled = false;
-    function px(x, y, color) { g.fillStyle = color; g.fillRect(x, y, 1, 1); }
-    var O = '#222', R = '#e03030', W = '#f8f8f8', G = '#aaa';
-    // Top half shifted up 3px and slightly apart
-    for (var x = 4; x <= 11; x++) px(x, 0, O);
-    px(3, 1, O); for (var x = 4; x <= 11; x++) px(x, 1, R); px(12, 1, O);
-    px(2, 2, O); for (var x = 3; x <= 12; x++) px(x, 2, R); px(13, 2, O);
-    px(2, 3, O); for (var x = 3; x <= 12; x++) px(x, 3, R); px(13, 3, O);
-    // Center band + button (stays in place)
-    px(1, 7, O); for (var x = 2; x <= 13; x++) px(x, 7, G); px(14, 7, O);
-    px(1, 8, O); for (var x = 2; x <= 13; x++) px(x, 8, G); px(14, 8, O);
-    px(6, 7, O); px(9, 7, O); px(6, 8, O); px(9, 8, O);
-    px(7, 7, '#ff0'); px(8, 7, '#ff0'); px(7, 8, '#ff0'); px(8, 8, '#ff0');
-    px(7, 6, O); px(8, 6, O); px(7, 9, O); px(8, 9, O);
-    // Bottom half (white)
-    px(1, 9, O); for (var x = 2; x <= 13; x++) px(x, 9, W); px(14, 9, O);
-    px(1, 10, O); for (var x = 2; x <= 13; x++) px(x, 10, W); px(14, 10, O);
-    px(1, 11, O); for (var x = 2; x <= 13; x++) px(x, 11, W); px(14, 11, O);
-    px(2, 12, O); for (var x = 3; x <= 12; x++) px(x, 12, W); px(13, 12, O);
-    px(3, 13, O); for (var x = 4; x <= 11; x++) px(x, 13, W); px(12, 13, O);
-    for (var x = 4; x <= 11; x++) px(x, 14, O);
-    return c;
-  })();
+  // No pokeball sprites needed — spawn uses warp-in flash effect
 
   // --- Spawn/despawn animation state ---
   // key: agentId, value: { type: 'spawn'|'despawn', startTime, x, y, entity?, agent? }
@@ -2174,32 +2023,25 @@
       : '<div class="box-empty">No boxed sub-agent history yet.</div>';
   }
 
-  function pokemonSpriteUrl(agent, sleeping) {
+  function unitSpriteUrl(agent, sleeping) {
     var id = getRenderPokemonId(agent);
-    var spec = pokemonSpriteSpec(sleeping);
-    return '/sprites/' + spec.folder + '/' + id + '.' + spec.ext;
+    return getSCDataUrl(id, sleeping ? 'Sleeping' : (agent.status || 'Idle'));
+  }
+
+  function pokemonSpriteUrl(agent, sleeping) {
+    return unitSpriteUrl(agent, sleeping);
   }
 
   function pokemonIconUrl(agent) {
-    var id = getRenderPokemonId(agent);
-    return '/sprites/icon/' + id + '.png';
+    return unitSpriteUrl(agent, false);
   }
 
   function pokemonStaticIconUrl(agent) {
-    var id = getRenderPokemonId(agent);
-    return '/sprites/icon-static/' + id + '.png';
-  }
-
-  function pokemonSpriteSpec(sleeping) {
-    return sleeping
-      ? { folder: 'static', ext: 'png' }
-      : { folder: 'animated', ext: 'gif' };
+    return unitSpriteUrl(agent, true);
   }
 
   function agentSleepSpriteScale(agent) {
-    if (!agent || agent.parentId) return 1;
-    if (!(appState.snapshot.config && appState.snapshot.config.enablePokeapiSprites)) return 1;
-    return pokeProvider.getSleepScale(agent);
+    return 1.0;
   }
 
   function formatContextK(value) {
@@ -2289,7 +2131,7 @@
 
   function promoDisplayLabel(unit) {
     var label = unit && typeof unit.label === 'string' ? unit.label.trim() : '';
-    return label || pokemonDisplayName(unit && unit.pokemonId ? unit.pokemonId : POKEDEX_MIN);
+    return label || pokemonDisplayName(unit && unit.pokemonId ? unit.pokemonId : SC_UNIT_MIN);
   }
 
   function promoLevelDetails(unit) {
@@ -2326,13 +2168,13 @@
   }
 
   function resolvePromoRenderedPokemonId(unit, parentAgent) {
-    var configuredPokemonId = promoClampInt(unit && unit.pokemonId, POKEDEX_MIN, POKEDEX_MAX, POKEDEX_MIN);
+    var configuredPokemonId = promoClampInt(unit && unit.pokemonId, SC_UNIT_MIN, SC_UNIT_MAX, SC_UNIT_MIN);
     if (!parentAgent) return configuredPokemonId;
 
     var parentConfiguredPokemonId = promoClampInt(
       parentAgent && parentAgent.promoConfiguredPokemonId,
-      POKEDEX_MIN,
-      POKEDEX_MAX,
+      SC_UNIT_MIN,
+      SC_UNIT_MAX,
       parentAgent && parentAgent.forcedPokemonId ? parentAgent.forcedPokemonId : configuredPokemonId
     );
 
@@ -2340,7 +2182,7 @@
       return configuredPokemonId;
     }
 
-    var candidates = getEvolutionPath(configuredPokemonId);
+    var candidates = getFactionPool(configuredPokemonId);
     if (!candidates.length) {
       return configuredPokemonId;
     }
@@ -2358,7 +2200,7 @@
       var details = promoLevelDetails(unit);
       var isSleeping = unit.status === 'Sleeping';
       var displayName = unit && typeof unit.label === 'string' && unit.label.trim() ? unit.label.trim() : null;
-      var configuredPokemonId = promoClampInt(unit && unit.pokemonId, POKEDEX_MIN, POKEDEX_MAX, POKEDEX_MIN);
+      var configuredPokemonId = promoClampInt(unit && unit.pokemonId, SC_UNIT_MIN, SC_UNIT_MAX, SC_UNIT_MIN);
       var renderedPokemonId = resolvePromoRenderedPokemonId(unit, parentAgent);
       var absoluteRootIndex = rootIndexOffset + rootIndex;
       var projectId = parentAgent ? parentAgent.projectId : promoRootProjectId(unit, absoluteRootIndex);
@@ -2513,13 +2355,13 @@
       seenPokemonIds: Array.from(seenPokemonIds).sort(function (a, b) { return a - b; }),
       firstDiscoveryByPokemon: firstDiscoveryByPokemon,
       discoveredCount: seenPokemonIds.size,
-      totalCount: POKEDEX_TOTAL
+      totalCount: SC_UNIT_TOTAL
     };
 
     if (
       changed ||
       previous.discoveredCount !== snapshot.discoveredCount ||
-      (previous.totalCount || POKEDEX_TOTAL) !== snapshot.totalCount
+      (previous.totalCount || SC_UNIT_TOTAL) !== snapshot.totalCount
     ) {
       promoPokedexState = snapshot;
       savePromoPokedexState();
@@ -2535,7 +2377,7 @@
     var source = baseSnapshot || appState.liveSnapshot || appState.snapshot;
     var base = source || {
       config: { isMockMode: true, enablePokeapiSprites: true },
-      pokedex: { seenPokemonIds: [], firstDiscoveryByPokemon: {}, totalCount: POKEDEX_TOTAL }
+      pokedex: { seenPokemonIds: [], firstDiscoveryByPokemon: {}, totalCount: SC_UNIT_TOTAL }
     };
     var now = Date.now();
     var agents = buildPromoAgents(now);
@@ -2601,7 +2443,7 @@
 
   function promoPokemonOptionsHtml(selectedId) {
     var html = '';
-    for (var pokemonId = POKEDEX_MIN; pokemonId <= POKEDEX_MAX; pokemonId++) {
+    for (var pokemonId = SC_UNIT_MIN; pokemonId <= SC_UNIT_MAX; pokemonId++) {
       html += '<option value="' + pokemonId + '"' + (pokemonId === selectedId ? ' selected' : '') + '>';
       html += '#' + String(pokemonId).padStart(3, '0') + ' ' + escapeHtml(pokemonDisplayName(pokemonId));
       html += '</option>';
@@ -2828,7 +2670,7 @@
     if (field === 'label') {
       target.label = String(rawValue || '').slice(0, 40);
     } else if (field === 'pokemonId') {
-      target.pokemonId = promoClampInt(rawValue, POKEDEX_MIN, POKEDEX_MAX, target.pokemonId || POKEDEX_MIN);
+      target.pokemonId = promoClampInt(rawValue, SC_UNIT_MIN, SC_UNIT_MAX, target.pokemonId || SC_UNIT_MIN);
       shouldRespawnFamily = !subId;
     } else if (field === 'level') {
       target.level = promoClampInt(rawValue, 1, 100, target.level || 1);
@@ -3276,7 +3118,7 @@
     }
 
     var discovered = typeof pokedex.discoveredCount === 'number' ? pokedex.discoveredCount : seenIds.length;
-    var total = typeof pokedex.totalCount === 'number' ? pokedex.totalCount : POKEDEX_TOTAL;
+    var total = typeof pokedex.totalCount === 'number' ? pokedex.totalCount : SC_UNIT_TOTAL;
     pokedexProgressEl.textContent = discovered + ' / ' + total;
     pokedexSummaryEl.textContent = discovered + ' / ' + total + ' discovered';
 
@@ -3289,16 +3131,26 @@
     if (activeCell) {
       activePokemonId = parseInt(activeCell.getAttribute('data-pokemon-id'), 10) || null;
     }
-    for (var pokemonId = POKEDEX_MIN; pokemonId <= POKEDEX_MAX; pokemonId++) {
+    for (var pokemonId = SC_UNIT_MIN; pokemonId <= SC_UNIT_MAX; pokemonId++) {
       var seen = !!seenLookup[pokemonId];
+      var unitMeta = scUnitData[pokemonId];
+      var factionLabel = unitMeta ? unitMeta.faction : '';
       html += '<div class="pokedex-cell' + (seen ? ' seen' : '') + '" data-pokemon-id="' + pokemonId + '" tabindex="0">';
       html += '<div class="pokedex-meta">';
       html += '<span class="pokedex-number">#' + String(pokemonId).padStart(3, '0') + '</span>';
       html += '<span class="pokedex-name">' + escapeHtml(pokemonDisplayName(pokemonId)) + '</span>';
+      if (factionLabel) {
+        html += '<span class="pokedex-faction">' + escapeHtml(factionLabel) + '</span>';
+      }
       html += '</div>';
       html += '<div class="pokedex-media">';
       if (seen) {
-        html += '<img class="pokedex-icon" src="/sprites/animated/' + pokemonId + '.gif" alt="' + escapeHtml(pokemonDisplayName(pokemonId)) + '" loading="lazy" />';
+        var iconUrl = getSCDataUrl(pokemonId, 'Idle');
+        if (iconUrl) {
+          html += '<img class="pokedex-icon" src="' + escapeHtml(iconUrl) + '" alt="' + escapeHtml(pokemonDisplayName(pokemonId)) + '" loading="lazy" />';
+        } else {
+          html += '<span class="pokedex-unknown">!</span>';
+        }
       } else {
         html += '<span class="pokedex-unknown">?</span>';
       }
@@ -3369,22 +3221,14 @@
     return agent.parentId ? SUBAGENT_DRAW_SIZE : DRAW_SIZE;
   }
 
-  function animationBallSize(drawSize) {
-    return Math.max(18, drawSize * 0.42);
-  }
 
   function drawAgents(agents, now) {
-    var usePokeSprites = appState.snapshot.config && appState.snapshot.config.enablePokeapiSprites;
-    if (usePokeSprites) return;
-
     const { scale, offsetX, offsetY } = getTransform();
 
     const drawRows = agents
       .map(function (agent) { return { agent: agent, entity: appState.entityById.get(agent.agentId) }; })
-      .filter(function (row) { return !!row.entity && !row.agent.parentId; })
+      .filter(function (row) { return !!row.entity; })
       .sort(function (a, b) { return a.entity.y - b.entity.y; });
-
-    const provider = spriteProvider();
 
     worldCtx.save();
     worldCtx.translate(offsetX, offsetY);
@@ -3394,21 +3238,27 @@
     for (const row of drawRows) {
       const agent = row.agent;
       const entity = row.entity;
-      // Skip if spawn animation hasn't reached the materialization phase yet
+      // Skip if spawn animation is still playing
       var anim = animations.get(agent.agentId);
       if (anim && anim.type === 'spawn') {
         var animElapsed = now - anim.startTime;
-        if (animElapsed < BALL_SHAKE_MS + BALL_OPEN_MS) continue; // still in ball phase
         if (animElapsed < SPAWN_DURATION_MS) continue; // handled by drawAnimations
       }
       if (anim && anim.type === 'despawn') continue; // handled by drawAnimations
 
-      const frame = (agent.status === 'Sleeping' || agent.isSleeping)
-        ? 0
-        : Math.floor(now / 200 + hashCode(agent.agentId)) % 3;
-      const sprite = provider.getSprite(agent, frame, agent.status);
+      var unitId = getRenderPokemonId(agent);
+      var unitMeta = scUnitData[unitId];
+      if (!unitMeta) continue;
 
-      worldCtx.drawImage(sprite, Math.round(entity.x), Math.round(entity.y), DRAW_SIZE, DRAW_SIZE);
+      var status = agent.status || 'Idle';
+      if (agent.isSleeping) status = 'Sleeping';
+      var animState = getAnimState(status, unitMeta);
+      var frameIndex = (status === 'Sleeping')
+        ? 0
+        : Math.floor(now / 150 + hashCode(agent.agentId)) % (unitMeta.frame[animState] || 1);
+
+      var drawSize = entity.drawSize || DRAW_SIZE;
+      drawSCSprite(worldCtx, unitMeta, animState, frameIndex, Math.round(entity.x), Math.round(entity.y), drawSize, drawSize);
     }
 
     worldCtx.restore();
@@ -3433,79 +3283,64 @@
       var centerY = cy + drawSize / 2;
 
       if (anim.type === 'spawn') {
-        // Phase 1: ball falls in + shakes (0 ~ BALL_SHAKE_MS)
-        // Phase 2: ball opens + white flash (BALL_SHAKE_MS ~ BALL_SHAKE_MS + BALL_OPEN_MS)
-        // Phase 3: monster materializes (BALL_SHAKE_MS + BALL_OPEN_MS ~ SPAWN_DURATION_MS)
+        // Warp-in flash effect (StarCraft style)
         if (elapsed >= SPAWN_DURATION_MS) {
           finished.push(id);
           continue;
         }
 
-        if (elapsed < BALL_SHAKE_MS) {
-          // Ball drops in and shakes
-          var dropT = Math.min(1, elapsed / 150);
-          var dropY = cy + (1 - dropT) * -15;
-          var shakeX = 0;
-          if (elapsed > 100) {
-            var shakeT = (elapsed - 100) / (BALL_SHAKE_MS - 100);
-            shakeX = Math.sin(shakeT * Math.PI * 4) * 2 * (1 - shakeT);
-          }
-          var ballSize = animationBallSize(drawSize);
-          var bx = cx + (drawSize - ballSize) / 2 + shakeX;
-          var by = dropY + (drawSize - ballSize) / 2;
-          worldCtx.drawImage(pokeballSprite, bx, by, ballSize, ballSize);
-        } else if (elapsed < BALL_SHAKE_MS + BALL_OPEN_MS) {
-          // Ball opens with flash
-          var openT = (elapsed - BALL_SHAKE_MS) / BALL_OPEN_MS;
-          var ballSize = animationBallSize(drawSize);
+        var t = elapsed / SPAWN_DURATION_MS;
 
-          // Draw open ball (shrinking)
-          var shrink = 1 - openT * 0.6;
-          var sbs = ballSize * shrink;
-          var sbx = cx + (drawSize - sbs) / 2;
-          var sby = cy + drawSize - sbs;
-          worldCtx.globalAlpha = 1 - openT;
-          worldCtx.drawImage(pokeballOpenSprite, sbx, sby, sbs, sbs);
-          worldCtx.globalAlpha = 1;
-
-          // White flash circle expanding
-          var flashRadius = drawSize * 0.22 + openT * drawSize * 0.28;
-          var flashAlpha = 0.8 * (1 - openT);
+        if (t < 0.5) {
+          // Phase 1: Blue warp-in shimmer expanding
+          var shimmerT = t / 0.5;
+          var flashRadius = drawSize * 0.15 + shimmerT * drawSize * 0.35;
+          var flashAlpha = 0.7 * shimmerT;
           worldCtx.beginPath();
           worldCtx.arc(centerX, centerY, flashRadius, 0, Math.PI * 2);
-          worldCtx.fillStyle = 'rgba(255,255,255,' + flashAlpha + ')';
+          worldCtx.fillStyle = 'rgba(80,160,255,' + flashAlpha + ')';
           worldCtx.fill();
-        } else {
-          // Phase 3: sparkle effect only (actual sprite appears via normal render path after animation ends)
-          var appearT = (elapsed - BALL_SHAKE_MS - BALL_OPEN_MS) / APPEAR_MS;
 
-          // Fading white glow where monster will appear
-          var glowAlpha = 0.5 * (1 - appearT);
+          // Vertical warp lines
+          for (var line = 0; line < 4; line++) {
+            var lx = centerX + (line - 1.5) * (drawSize * 0.18);
+            var lineAlpha = 0.6 * shimmerT * (1 - Math.abs(line - 1.5) / 2);
+            worldCtx.strokeStyle = 'rgba(120,200,255,' + lineAlpha + ')';
+            worldCtx.lineWidth = 1 / scale;
+            worldCtx.beginPath();
+            worldCtx.moveTo(lx, cy - drawSize * 0.2 * shimmerT);
+            worldCtx.lineTo(lx, cy + drawSize + drawSize * 0.2 * shimmerT);
+            worldCtx.stroke();
+          }
+        } else {
+          // Phase 2: Flash fades, sparkle particles
+          var fadeT = (t - 0.5) / 0.5;
+
+          // Fading blue-white glow
+          var glowAlpha = 0.6 * (1 - fadeT);
           if (glowAlpha > 0) {
-            var glowRadius = drawSize * 0.24 * (1 - appearT * 0.45);
+            var glowRadius = drawSize * 0.3 * (1 - fadeT * 0.5);
             worldCtx.beginPath();
             worldCtx.arc(centerX, centerY, glowRadius, 0, Math.PI * 2);
-            worldCtx.fillStyle = 'rgba(255,255,255,' + glowAlpha + ')';
+            worldCtx.fillStyle = 'rgba(140,200,255,' + glowAlpha + ')';
             worldCtx.fill();
           }
 
           // Sparkle particles
-          if (appearT < 0.8) {
-            var sparkles = 4;
+          if (fadeT < 0.8) {
+            var sparkles = 5;
             for (var s = 0; s < sparkles; s++) {
               var sa = (s / sparkles) * Math.PI * 2 + now * 0.008;
-              var sr = drawSize * 0.26 * (1 - appearT);
+              var sr = drawSize * 0.3 * (1 - fadeT);
               var spx = centerX + Math.cos(sa) * sr;
               var spy = centerY + Math.sin(sa) * sr;
-              worldCtx.fillStyle = 'rgba(255,255,220,' + (0.9 - appearT) + ')';
+              worldCtx.fillStyle = 'rgba(180,220,255,' + (0.9 - fadeT) + ')';
               worldCtx.fillRect(spx - 0.5, spy - 0.5, 1, 1);
             }
           }
         }
       } else if (anim.type === 'despawn') {
-        // Phase 1: monster shrinks + red tint (0 ~ DESPAWN_DURATION_MS * 0.4)
-        // Phase 2: red beam into ball (DESPAWN_DURATION_MS * 0.4 ~ 0.7)
-        // Phase 3: ball shrinks away (DESPAWN_DURATION_MS * 0.7 ~ 1.0)
+        // Fade-out dissolve effect
         if (elapsed >= DESPAWN_DURATION_MS) {
           finished.push(id);
           appState.roomAssignments.delete(id);
@@ -3514,54 +3349,31 @@
 
         var t = elapsed / DESPAWN_DURATION_MS;
 
-        if (t < 0.4) {
-          // Red silhouette shrinks (no actual sprite drawn)
-          var shrinkT = t / 0.4;
-          var scaleDown = 1 - shrinkT * 0.7;
-          var silSize = drawSize * scaleDown;
-          var silX = cx + (drawSize - silSize) / 2;
-          var silY = cy + (drawSize - silSize);
-          // Shrinking red glow blob
-          worldCtx.globalAlpha = 1 - shrinkT * 0.3;
+        if (t < 0.5) {
+          // Unit fades with blue tint
+          var fadeT = t / 0.5;
+          worldCtx.globalAlpha = 1 - fadeT * 0.6;
           var grad = worldCtx.createRadialGradient(
-            centerX, centerY, silSize * 0.1,
-            centerX, centerY, silSize * 0.6
+            centerX, centerY, drawSize * 0.1,
+            centerX, centerY, drawSize * 0.6
           );
-          grad.addColorStop(0, 'rgba(255,80,80,0.8)');
-          grad.addColorStop(1, 'rgba(255,50,50,0)');
+          grad.addColorStop(0, 'rgba(80,160,255,0.6)');
+          grad.addColorStop(1, 'rgba(80,160,255,0)');
           worldCtx.fillStyle = grad;
-          worldCtx.fillRect(silX, silY, silSize, silSize);
+          worldCtx.fillRect(cx, cy, drawSize, drawSize);
           worldCtx.globalAlpha = 1;
-        } else if (t < 0.7) {
-          // Red beam converges into ball center
-          var beamT = (t - 0.4) / 0.3;
-          var bcx = centerX;
-          var bcy = centerY;
-          // Converging beam lines
-          for (var b = 0; b < 6; b++) {
-            var ba = (b / 6) * Math.PI * 2;
-            var bRadius = drawSize * 0.6 * (1 - beamT);
-            var bsx = bcx + Math.cos(ba) * bRadius;
-            var bsy = bcy + Math.sin(ba) * bRadius;
-            worldCtx.strokeStyle = 'rgba(255,80,80,' + (0.8 - beamT * 0.5) + ')';
-            worldCtx.lineWidth = 1.5 / scale;
-            worldCtx.beginPath();
-            worldCtx.moveTo(bsx, bsy);
-            worldCtx.lineTo(bcx, bcy);
-            worldCtx.stroke();
-          }
-          // Ball appears at center
-          var ballSize = animationBallSize(drawSize) * beamT;
-          worldCtx.drawImage(pokeballSprite, bcx - ballSize / 2, bcy - ballSize / 2, ballSize, ballSize);
         } else {
-          // Ball shrinks and fades
-          var fadeT = (t - 0.7) / 0.3;
-          var ballSize = animationBallSize(drawSize) * (1 - fadeT * 0.8);
-          var bcx = centerX;
-          var bcy = centerY;
-          worldCtx.globalAlpha = 1 - fadeT;
-          worldCtx.drawImage(pokeballSprite, bcx - ballSize / 2, bcy - ballSize / 2, ballSize, ballSize);
-          worldCtx.globalAlpha = 1;
+          // Dissolve particles scatter upward
+          var dissolveT = (t - 0.5) / 0.5;
+          var particleAlpha = 0.8 * (1 - dissolveT);
+          for (var p = 0; p < 6; p++) {
+            var pa = (p / 6) * Math.PI * 2 + elapsed * 0.006;
+            var pr = drawSize * 0.2 + dissolveT * drawSize * 0.4;
+            var px = centerX + Math.cos(pa) * pr;
+            var py = centerY + Math.sin(pa) * pr - dissolveT * drawSize * 0.3;
+            worldCtx.fillStyle = 'rgba(100,180,255,' + particleAlpha + ')';
+            worldCtx.fillRect(px - 0.5, py - 0.5, 1, 1);
+          }
         }
       }
     }
@@ -3576,7 +3388,6 @@
   function renderOverlay(agents, now) {
     const { scale, offsetX, offsetY } = getTransform();
     const dpr = window.devicePixelRatio || 1;
-    var usePokeSprites = appState.snapshot.config && appState.snapshot.config.enablePokeapiSprites;
 
     var html = '';
     var zzzHtml = '';
@@ -3597,28 +3408,9 @@
 
       var isSleep = agent.isSleeping || !agent.isActive;
       var isSubagent = !!agent.parentId;
-      var sleepScale = isSleep ? agentSleepSpriteScale(agent) : 1;
-      var sleepScaleStyle = isSleep ? ';--sleep-sprite-scale:' + sleepScale.toFixed(3) : '';
 
-      // Subagents always use the compact icon sprite treatment.
-      if (isSubagent) {
-        var subagentSpriteUrl = isSleep ? pokemonStaticIconUrl(agent) : pokemonIconUrl(agent);
-        var subagentSleepClass = isSleep ? ' agent-sprite-sleeping' : '';
-        html += '<span class="agent-sprite agent-sprite-subagent' + subagentSleepClass + '" data-agent-id="' + escapeHtml(agent.agentId) + '" style="left:' + sx + 'px;top:' + sy + 'px;width:' + drawSizeCss + 'px;height:' + drawSizeCss + 'px' + sleepScaleStyle + '">';
-        html += '<img class="agent-sprite-image" src="' + escapeHtml(subagentSpriteUrl) + '" />';
-        html += '</span>';
-      } else if (usePokeSprites) {
-        var spriteUrl = pokeProvider.getSpriteUrl(agent, isSleep);
-        if (spriteUrl) {
-          var sleepClass = isSleep ? ' agent-sprite-sleeping' : '';
-          html += '<span class="agent-sprite' + sleepClass + '" data-agent-id="' + escapeHtml(agent.agentId) + '" style="left:' + sx + 'px;top:' + sy + 'px;width:' + drawSizeCss + 'px;height:' + drawSizeCss + 'px' + sleepScaleStyle + '">';
-          html += '<img class="agent-sprite-image" src="' + escapeHtml(spriteUrl) + '" />';
-          html += '</span>';
-        }
-      } else {
-        // Invisible hit area for canvas-rendered sprites
-        html += '<span class="agent-sprite" data-agent-id="' + escapeHtml(agent.agentId) + '" style="left:' + sx + 'px;top:' + sy + 'px;width:' + drawSizeCss + 'px;height:' + drawSizeCss + 'px"></span>';
-      }
+      // All agents: invisible hit area for canvas-rendered sprites (SC sprites drawn on canvas)
+      html += '<span class="agent-sprite' + (isSleep ? ' agent-sprite-sleeping' : '') + (isSubagent ? ' agent-sprite-subagent' : '') + '" data-agent-id="' + escapeHtml(agent.agentId) + '" style="left:' + sx + 'px;top:' + sy + 'px;width:' + drawSizeCss + 'px;height:' + drawSizeCss + 'px"></span>';
 
       if (!isSubagent) {
         var badge = rootAgentBadge(agent);
@@ -3721,7 +3513,6 @@
 
   async function drawExportOverlay(ctx, agents, now) {
     var transform = getTransform();
-    var usePokeSprites = appState.snapshot.config && appState.snapshot.config.enablePokeapiSprites;
 
     for (var i = 0; i < agents.length; i++) {
       var agent = agents[i];
@@ -3736,14 +3527,9 @@
       var drawSizePx = agentDrawSize(agent) * transform.scale;
       var isSubagent = !!agent.parentId;
       var isSleep = agent.isSleeping || !agent.isActive;
-      var spriteUrl = null;
 
-      if (isSubagent) {
-        spriteUrl = isSleep ? pokemonStaticIconUrl(agent) : pokemonIconUrl(agent);
-      } else if (usePokeSprites) {
-        spriteUrl = pokeProvider.getSpriteUrl(agent, isSleep);
-      }
-
+      // Draw SC sprite via data URL
+      var spriteUrl = isSleep ? pokemonStaticIconUrl(agent) : pokemonIconUrl(agent);
       if (spriteUrl) {
         var img = await loadExportImage(spriteUrl);
         if (img) {
@@ -3966,7 +3752,7 @@
         var config = (appState.snapshot && appState.snapshot.config) || {};
         if (!config.supportsHardReset) return;
         var mode = config.mode || (config.isMockMode ? 'mock' : 'watch');
-        if (!window.confirm('Reset ' + mode + ' state, boxed agents, and discovered Pokedex progress?')) return;
+        if (!window.confirm('Reset ' + mode + ' state, boxed agents, and discovered Unitdex progress?')) return;
         hardResetBtnEl.disabled = true;
         try {
           var res = await fetch('/api/hard-reset', { method: 'POST' });
