@@ -3,68 +3,59 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Claude Agent Pixel Dashboard</title>
+    <title>OVERMIND</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
     <div class="app-shell">
       <header class="top-bar">
         <div class="title-wrap">
-          <h1>Claude Agent Island</h1>
-          <p>Live local activity from Claude Code transcripts</p>
+          <h1>OVERMIND</h1>
         </div>
         <div class="stats-wrap">
-          <button id="pokedex-toggle" class="pokedex-toggle" type="button">
-            <span class="pokedex-toggle-title">Pokedex</span>
-            <span id="pokedex-progress" class="pokedex-toggle-progress">0 / 251</span>
-          </button>
-          <button id="promo-studio-toggle" class="promo-studio-toggle" type="button" hidden>
-            <span class="promo-studio-toggle-title">Promo Studio</span>
-            <span class="promo-studio-toggle-subtitle">Custom scene builder</span>
-          </button>
-          <button id="hard-reset-btn" class="hard-reset-btn" type="button" hidden>Hard Reset</button>
           <div class="stat">
-            <span class="label">Active</span>
+            <span class="label">SUPPLY</span>
             <span id="active-count" class="value">0</span>
           </div>
           <div class="stat">
-            <span class="label">Last Update</span>
-            <span id="last-update" class="value">-</span>
-          </div>
-          <div class="stat">
-            <span class="label">Tokens Used</span>
+            <span class="label">MINERALS</span>
             <span id="token-total" class="value">0</span>
           </div>
+          <div class="stat">
+            <span class="label">LAST SYNC</span>
+            <span id="last-update" class="value">-</span>
+          </div>
           <label class="control">
-            <span>Project</span>
+            <span>HIVE</span>
             <select id="project-filter">
               <option value="all">All</option>
             </select>
           </label>
           <label class="control">
-            <span>Session</span>
+            <span>BROOD</span>
             <select id="session-filter">
               <option value="all">All</option>
             </select>
           </label>
+          <button id="pokedex-toggle" class="pokedex-toggle" type="button">
+            <span class="pokedex-toggle-title">ARCHIVE</span>
+            <span id="pokedex-progress" class="pokedex-toggle-progress">0 / 49</span>
+          </button>
+          <button id="promo-studio-toggle" class="promo-studio-toggle" type="button" hidden>
+            <span class="promo-studio-toggle-title">Promo Studio</span>
+            <span class="promo-studio-toggle-subtitle">Custom scene builder</span>
+          </button>
+          <button id="hard-reset-btn" class="hard-reset-btn" type="button" hidden>PURGE</button>
         </div>
       </header>
 
       <main class="main-grid">
-        <aside class="side-panel">
-          <h2>Agents</h2>
-          <div id="agent-list" class="agent-list"></div>
-          <div class="box-panel">
-            <div class="box-panel-head">
-              <h3 class="box-title">Box <span id="box-count">0</span></h3>
-              <button id="box-history-toggle" class="box-history-toggle" type="button">View All</button>
-            </div>
-            <div id="box-list" class="box-list"></div>
-          </div>
-        </aside>
         <section class="canvas-wrap">
           <div class="canvas-area">
-            <canvas id="office-canvas" aria-label="pixel office"></canvas>
+            <canvas id="office-canvas" aria-label="overmind tactical map"></canvas>
             <div id="agent-overlay" class="agent-overlay"></div>
             <aside id="promo-studio-panel" class="promo-studio-panel" hidden>
               <div class="promo-studio-panel-head">
@@ -88,14 +79,29 @@
               <div id="promo-studio-list" class="promo-studio-list"></div>
             </aside>
           </div>
-          <div class="legend">
-            <span><b>Idle</b></span>
-            <span><b>Thinking</b></span>
-            <span><b>Tool</b> ⚙</span>
-            <span><b>Output</b> ✍</span>
-            <span><b>Waiting</b> ⏳</span>
-          </div>
         </section>
+
+        <div class="bottom-hud">
+          <div class="hud-left">
+            <div id="hud-minimap" class="hud-minimap"></div>
+          </div>
+          <div class="hud-center">
+            <div id="agent-list" class="agent-list"></div>
+            <div id="hud-selected" class="hud-selected">
+              <div class="hud-no-selection">NO UNIT SELECTED</div>
+            </div>
+            <div class="box-panel">
+              <div class="box-panel-head">
+                <h3 class="box-title">COCOON <span id="box-count">0</span></h3>
+                <button id="box-history-toggle" class="box-history-toggle" type="button">VIEW ALL</button>
+              </div>
+              <div id="box-list" class="box-list"></div>
+            </div>
+          </div>
+          <div class="hud-right">
+            <div id="hud-stats" class="hud-stats"></div>
+          </div>
+        </div>
       </main>
     </div>
 
@@ -104,15 +110,15 @@
       <section class="pokedex-panel" role="dialog" aria-modal="true" aria-labelledby="pokedex-title">
         <div class="pokedex-panel-head">
           <div>
-            <h2 id="pokedex-title">Island Pokedex</h2>
-            <p id="pokedex-summary" class="pokedex-summary">0 / 251 discovered</p>
+            <h2 id="pokedex-title">UNIT ARCHIVE</h2>
+            <p id="pokedex-summary" class="pokedex-summary">0 / 49 discovered</p>
           </div>
           <div class="pokedex-toolbar">
-            <div class="pokedex-lang-tabs" role="tablist" aria-label="Pokedex language">
+            <div class="pokedex-lang-tabs" role="tablist" aria-label="Archive language">
               <button id="pokedex-lang-en" class="pokedex-lang-tab active" type="button" role="tab" aria-selected="true">EN</button>
               <button id="pokedex-lang-ko" class="pokedex-lang-tab" type="button" role="tab" aria-selected="false">KO</button>
             </div>
-          <button id="pokedex-close" class="pokedex-close" type="button" aria-label="Close Pokedex">Close</button>
+          <button id="pokedex-close" class="pokedex-close" type="button" aria-label="Close Archive">CLOSE</button>
           </div>
         </div>
         <div id="pokedex-grid" class="pokedex-grid"></div>
@@ -124,10 +130,10 @@
       <section class="pokedex-panel box-history-panel" role="dialog" aria-modal="true" aria-labelledby="box-history-title">
         <div class="pokedex-panel-head">
           <div>
-            <h2 id="box-history-title">Box History</h2>
-            <p id="box-history-summary" class="pokedex-summary">0 boxed sessions</p>
+            <h2 id="box-history-title">COCOON HISTORY</h2>
+            <p id="box-history-summary" class="pokedex-summary">0 cocooned sessions</p>
           </div>
-          <button id="box-history-close" class="pokedex-close" type="button" aria-label="Close Box History">Close</button>
+          <button id="box-history-close" class="pokedex-close" type="button" aria-label="Close Cocoon History">CLOSE</button>
         </div>
         <div id="box-history-grid" class="box-history-grid"></div>
       </section>
@@ -138,10 +144,10 @@
       <section class="pokedex-panel subhistory-panel" role="dialog" aria-modal="true" aria-labelledby="subhistory-title">
         <div class="pokedex-panel-head">
           <div>
-            <h2 id="subhistory-title">Sub-agent History</h2>
+            <h2 id="subhistory-title">BROODLING HISTORY</h2>
             <p id="subhistory-summary" class="pokedex-summary">0 records</p>
           </div>
-          <button id="subhistory-close" class="pokedex-close" type="button" aria-label="Close Sub-agent History">Close</button>
+          <button id="subhistory-close" class="pokedex-close" type="button" aria-label="Close Broodling History">CLOSE</button>
         </div>
         <div id="subhistory-grid" class="subhistory-modal-grid"></div>
       </section>

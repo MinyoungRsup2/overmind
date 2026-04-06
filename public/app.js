@@ -249,6 +249,8 @@
   const pokedexGridEl = document.getElementById('pokedex-grid');
   const pokedexLangEnEl = document.getElementById('pokedex-lang-en');
   const pokedexLangKoEl = document.getElementById('pokedex-lang-ko');
+  const hudSelectedEl = document.getElementById('hud-selected');
+  const hudStatsEl = document.getElementById('hud-stats');
 
   const uiState = {
     projectFilter: 'all',
@@ -595,6 +597,69 @@
   var scSpriteSheets = {};    // spriteSheet filename → Image object (preloaded)
   var scSpriteDataUrls = {};  // cacheKey → data:image/png URL (for <img> contexts)
 
+  // ── Battle visualization data ──
+  // Directional frame data for the Marine vs Zergling battle system.
+  // Kept separate from sc_unit_data.json to avoid breaking the extraction script.
+  var BATTLE_DATA = {
+    marine: {
+      unitId: 16,
+      spriteSheet: 'Marine.png',
+      width: 44, height: 44,
+      attack_upright: {
+        left: [138, 138, 138, 138, 138, 138, 138],
+        top: [74, 138, 202, 138, 202, 138, 202]
+      },
+      dock_upright: { left: [138], top: [10] },
+      attackFrames: 7
+    },
+    zergling: {
+      unitId: 2,
+      spriteSheet: 'Zergling.png',
+      width: 43, height: 42,
+      moving_downleft: {
+        left: [473, 473, 473, 473, 473, 473, 473],
+        top: [0, 42, 84, 126, 168, 210, 252]
+      },
+      movingFrames: 7,
+      death: {
+        left: [0, 68, 136, 204, 272, 340, 408],
+        top: [506, 506, 506, 506, 506, 506, 506],
+        width: 68, height: 55
+      },
+      deathFrames: 7
+    }
+  };
+
+  // ── Battle particle state ──
+  var battleState = {
+    zerglings: [],        // active zergling particle objects
+    pendingSpawns: 0,     // tokens waiting to spawn as zerglings
+    lastSpawnTime: 0,
+    spawnRate: 200,        // ms between zergling spawns
+    zerglingSpeed: 0.8,    // pixels per frame at ~60fps
+    maxZerglings: 40,      // cap to prevent lag
+    marineAttacks: {}      // agentId → { cooldownUntil, attacking, attackFrame, attackStart }
+  };
+  var lastKnownTokenTotal = 0;
+  var MARINE_DRAW_SIZE = 22;
+  var ZERGLING_DRAW_SIZE = 20;
+  var ZERGLING_DEATH_DRAW_SIZE = 28;
+  var MARINE_ATTACK_DURATION = 700;   // ms for full attack animation
+  var MARINE_ATTACK_COOLDOWN = 300;   // ms cooldown after attack before next kill
+  var ZERGLING_FRAME_MS = 100;        // ms per animation frame
+  var ZERGLING_KILL_RANGE = 18;       // px distance to trigger kill
+  var TOKENS_PER_ZERGLING = 10000;
+
+  // Ensure battle sprite sheets are preloaded early
+  (function preloadBattleSheets() {
+    var sheets = [BATTLE_DATA.marine.spriteSheet, BATTLE_DATA.zergling.spriteSheet];
+    for (var i = 0; i < sheets.length; i++) {
+      var img = new Image();
+      img.src = '/sprites/sheet/' + sheets[i];
+      scSpriteSheets[sheets[i]] = img;
+    }
+  })();
+
   function preloadSpriteSheet(spriteSheetName) {
     if (scSpriteSheets[spriteSheetName]) return scSpriteSheets[spriteSheetName];
     var img = new Image();
@@ -830,7 +895,10 @@
   }
 
   function getRenderPokemonId(agent) {
-    if (!agent) return SC_UNIT_MIN;
+    if (!agent) return BATTLE_DATA.marine.unitId; // Marine
+    // Battle mode: all agents render as Marines
+    return BATTLE_DATA.marine.unitId;
+    /* Original unit assignment (disabled for battle mode):
     if (agent.forcedPokemonId) {
       return agent.forcedPokemonId;
     }
@@ -849,6 +917,7 @@
       subagentPokemonCache[agent.agentId] = selected;
     }
     return selected;
+    */
   }
 
   // Get the area index that a pokemon's habitat maps to
@@ -1463,6 +1532,7 @@
 
   function filteredAgents() {
     return appState.snapshot.agents.filter(function (agent) {
+      if (agent.isSleeping || (!agent.isActive && agent.status === 'Sleeping')) return false;
       if (uiState.projectFilter !== 'all' && agent.projectId !== uiState.projectFilter) return false;
       if (uiState.sessionFilter !== 'all' && agent.sessionId !== uiState.sessionFilter) return false;
       return true;
@@ -1551,90 +1621,9 @@
 
     var html = '';
     html += '<article class="poke-slot' + hierarchyClass + activeClass + isExpanded + branchHostClass + '" data-agent-id="' + escapeHtml(agent.agentId) + '" data-depth="' + depth + '">';
-
+    html += '<div class="sc-wire-box">';
     html += '<img class="poke-slot-sprite" src="' + escapeHtml(spriteUrl) + '" />';
-
-    html += '<div class="poke-slot-info">';
-
-    html += '<div class="poke-slot-row1">';
-    html += '<div class="poke-slot-title">';
-    html += '<span class="poke-lv">LV.' + xp.level + '</span>';
-    html += '<span class="poke-slot-name" title="' + escapeHtml(fullLabel) + '">' + escapeHtml(name) + '</span>';
-    html += '</div>';
-    html += '<span class="poke-slot-status">' + escapeHtml(agent.status) + '</span>';
-    html += '</div>';
-
-    if (depth > 0 || childCount > 0) {
-      html += '<div class="poke-slot-row-meta">';
-      if (depth > 0) {
-        html += '<span class="poke-subagent-badge">SUB</span>';
-        html += '<span class="poke-depth-badge">D' + depth + '</span>';
-        if (parentName) {
-          html += '<span class="poke-parent-pill" title="Parent: ' + escapeHtml(parentName) + '">Parent ' + escapeHtml(parentName) + '</span>';
-        }
-      }
-      if (childCount > 0) {
-        html += '<span class="poke-children-pill">' + escapeHtml(visibleChildLabel) + '</span>';
-        html += '<button class="poke-hierarchy-toggle' + (isCollapsed ? ' collapsed' : '') + '" type="button" data-action="toggle-subtree" data-agent-id="' + escapeHtml(agent.agentId) + '" data-depth="' + depth + '" aria-expanded="' + String(!isCollapsed) + '" title="' + (isCollapsed ? 'Show sub-agent hierarchy' : 'Hide sub-agent hierarchy') + '">';
-        html += '<span class="poke-hierarchy-toggle-label">' + (isCollapsed ? 'Show' : 'Hide') + '</span>';
-        html += '</button>';
-      }
-      html += '</div>';
-    }
-
-    html += '<div class="poke-slot-row2">';
-    html += '<span class="poke-hp-label">HP</span>';
-    html += '<div class="poke-hp-track"><div class="poke-hp-fill" style="width:' + barPct.toFixed(1) + '%;background:' + barColor + '"></div></div>';
-    html += '</div>';
-
-    html += '<div class="poke-slot-row3">';
-    html += '<span class="poke-exp-label">EXP</span>';
-    html += '<div class="poke-exp-track"><div class="poke-exp-fill" style="width:' + xp.progress.toFixed(1) + '%"></div></div>';
-    html += '<span class="poke-exp-nums">' + formatTokenCount(xp.intoLevel) + ' / ' + formatTokenCount(xp.needed) + '</span>';
-    html += '</div>';
-
-    html += '<div class="poke-slot-row4">';
-    html += '<span class="poke-token-nums">TOK ' + formatTokenCount(xp.totalTokens) + '</span>';
-    html += '</div>';
-    html += '</div>';
-
-    html += '<div class="poke-slot-details">';
-    html += '<div class="detail-row detail-title"><span class="detail-value">' + escapeHtml(fullLabel) + '</span></div>';
-    html += '<div class="detail-row"><span class="detail-label">ID</span><span class="detail-value">' + escapeHtml(toShortId(agent.agentId)) + '</span></div>';
-    if (depth > 0) {
-      html += '<div class="detail-row"><span class="detail-label">Depth</span><span class="detail-value">' + depth + '</span></div>';
-      html += '<div class="detail-row"><span class="detail-label">Parent</span><span class="detail-value">' + escapeHtml(parentName || '-') + '</span></div>';
-    }
-    html += '<div class="detail-row"><span class="detail-label">Started</span><span class="detail-value">' + formatTime(agent.createdAt) + '</span></div>';
-    html += '<div class="detail-row"><span class="detail-label">Uptime</span><span class="detail-value">' + escapeHtml(uptime) + '</span></div>';
-    html += '<div class="detail-row"><span class="detail-label">Last seen</span><span class="detail-value">' + secsAgo + 's ago</span></div>';
-    html += '<div class="detail-row"><span class="detail-label">Last tool</span><span class="detail-value">' + escapeHtml(agent.lastTool || '-') + '</span></div>';
-    html += '<div class="detail-row"><span class="detail-label">Tools run</span><span class="detail-value">' + (agent.counters.toolStarts || 0) + '</span></div>';
-    html += '<div class="detail-row"><span class="detail-label">Tokens</span><span class="detail-value">' + formatTokenCount(xp.totalTokens) + '</span></div>';
-    html += '<div class="detail-row"><span class="detail-label">Project</span><span class="detail-value">' + escapeHtml(agent.projectId) + '</span></div>';
-    html += '<div class="detail-row"><span class="detail-label">Session</span><span class="detail-value">' + escapeHtml(agent.sessionId) + '</span></div>';
-    if (childCount > 0) {
-      html += '<div class="detail-row"><span class="detail-label">Visible subs</span><span class="detail-value">' + childCount + '</span></div>';
-    }
-    if (agent.childrenIds && agent.childrenIds.length > 0) {
-      html += '<div class="detail-row"><span class="detail-label">Sub-agents</span><span class="detail-value">' + agent.childrenIds.length + '</span></div>';
-    }
-    if (subhistoryCount > 0) {
-      html += '<div class="detail-row"><span class="detail-label">Sub history</span><span class="detail-value">' + subhistoryCount + '</span></div>';
-      html += '<button class="box-detail-btn" data-action="open-subhistory" data-agent-id="' + escapeHtml(agent.agentId) + '">Open Sub-agent History</button>';
-    }
-    if (lastCommand) {
-      html += '<div class="detail-command" title="' + escapeHtml(lastCommand) + '"><span class="detail-label">Last command</span><span class="detail-value">' + escapeHtml(lastCommand) + '</span></div>';
-    }
-    if (agent.lastUserQuery) {
-      html += '<div class="detail-row detail-query"><span class="detail-label">Last query</span><span class="detail-value">' + escapeHtml(agent.lastUserQuery) + '</span></div>';
-    }
-    if (!agent.isPromoCustom || !agent.parentId) {
-      html += '<button class="box-btn" data-action="box" data-agent-id="' + escapeHtml(agent.agentId) + '">Box</button>';
-    }
-    html += '</div>';
-
-    html += '</article>';
+    html += '<div class="sc-wire-hp"><div class="sc-wire-hp-fill" style="width:' + barPct.toFixed(1) + '%;background:' + barColor + '"></div></div>';
     return html;
   }
 
@@ -2429,6 +2418,10 @@
     activeCountEl.textContent = String(snapshot.activeAgentCount || 0);
     lastUpdateEl.textContent = new Date(snapshot.lastUpdate || Date.now()).toLocaleTimeString();
     tokenTotalEl.textContent = formatTokenCount(filteredTokenTotal(agents));
+    renderHudSelected();
+    renderHudStats();
+    // Feed token deltas into the battle system
+    updateBattleTokens(snapshot.agents || []);
   }
 
   function syncVisibleSnapshot() {
@@ -2743,8 +2736,6 @@
 
       if (roomIndex !== currentRoom) {
         currentRoom = roomIndex;
-        var roomLabel = AREAS[roomIndex] ? AREAS[roomIndex].label : 'Area ?';
-        html += '<div class="room-header">' + escapeHtml(roomLabel) + '</div>';
       }
 
       html += '<section class="agent-family">';
@@ -2828,6 +2819,85 @@
 
   function hideMapTooltip() {
     mapTooltipEl.style.display = 'none';
+  }
+
+  // ── Bottom HUD: Selected Agent ──
+  var hudSelectedAgentId = null;
+
+  function selectAgentForHud(agentId) {
+    hudSelectedAgentId = agentId;
+    renderHudSelected();
+  }
+
+  function renderHudSelected() {
+    if (!hudSelectedEl) return;
+    if (!hudSelectedAgentId) {
+      hudSelectedEl.innerHTML = '<div class="hud-no-selection">NO UNIT SELECTED</div>';
+      return;
+    }
+    var agents = (appState.snapshot && appState.snapshot.agents) || [];
+    var agent = null;
+    for (var i = 0; i < agents.length; i++) {
+      if (agents[i].agentId === hudSelectedAgentId) { agent = agents[i]; break; }
+    }
+    if (!agent) {
+      hudSelectedEl.innerHTML = '<div class="hud-no-selection">UNIT LOST</div>';
+      return;
+    }
+    var isSleep = agent.isSleeping || !agent.isActive;
+    var spriteUrl = pokemonSpriteUrl(agent, isSleep);
+    var name = agent.displayName || agent.subagentType || toShortId(agent.agentId);
+    var fullLabel = agentLabel(agent);
+    var status = agent.status || (isSleep ? 'Sleeping' : 'Idle');
+    var xp = agentLevelProgress(agent);
+    var contextMax = agent.contextMax || 200000;
+    var contextUsed = agent.contextUsed || 0;
+    var contextRemaining = contextMax - contextUsed;
+    var hpRatio = contextRemaining / contextMax;
+    var barColor = hpBarColor(hpRatio);
+    var barPct = Math.max(0, Math.min(100, hpRatio * 100));
+    var expPct = xp.level >= 100 ? 100 : (xp.needed > 0 ? Math.min(100, (xp.intoLevel / xp.needed) * 100) : 0);
+    var projectName = shortProjectName(agent.projectId);
+    var lastTool = agent.lastTool || '-';
+    var lastCommand = commandText(agent.lastCommand);
+
+    var html = '';
+    html += '<div class="hud-unit-header">';
+    html += '<img class="hud-unit-sprite" src="' + escapeHtml(spriteUrl) + '" />';
+    html += '<div class="hud-unit-info">';
+    html += '<div class="hud-unit-name">' + escapeHtml(name) + '</div>';
+    html += '<div class="hud-unit-label">' + escapeHtml(fullLabel) + '</div>';
+    html += '<div class="hud-unit-status">' + escapeHtml(status) + '</div>';
+    html += '</div></div>';
+
+    html += '<div class="hud-unit-bars">';
+    html += '<div class="hud-bar-row"><span class="hud-bar-label">HP</span>';
+    html += '<div class="hud-bar-track"><div class="hud-bar-fill" style="width:' + barPct.toFixed(1) + '%;background:' + barColor + '"></div></div>';
+    html += '<span class="hud-bar-nums">' + formatContextK(contextRemaining) + ' / ' + formatContextK(contextMax) + '</span></div>';
+    html += '<div class="hud-bar-row"><span class="hud-bar-label">EXP</span>';
+    html += '<div class="hud-bar-track"><div class="hud-bar-fill" style="width:' + expPct.toFixed(1) + '%;background:#3080d0"></div></div>';
+    html += '<span class="hud-bar-nums">LV.' + xp.level + '  ' + formatTokenCount(xp.intoLevel) + ' / ' + formatTokenCount(xp.needed) + '</span></div>';
+    html += '</div>';
+
+    html += '<div class="hud-unit-details">';
+    html += '<div class="hud-detail-item"><span class="hud-detail-label">HIVE</span><span class="hud-detail-value">' + escapeHtml(projectName) + '</span></div>';
+    html += '<div class="hud-detail-item"><span class="hud-detail-label">TOOL</span><span class="hud-detail-value">' + escapeHtml(lastTool) + '</span></div>';
+    html += '<div class="hud-detail-item"><span class="hud-detail-label">TOKENS</span><span class="hud-detail-value">' + formatTokenCount(agent.totalTokens || 0) + '</span></div>';
+    html += '<div class="hud-detail-item"><span class="hud-detail-label">TOOL OPS</span><span class="hud-detail-value">' + ((agent.counters && agent.counters.toolStarts) || 0) + '</span></div>';
+    html += '</div>';
+
+    if (lastCommand) {
+      html += '<div class="hud-unit-command">';
+      html += '<div class="hud-command-label">DIRECTIVE</div>';
+      html += '<div class="hud-command-value">' + escapeHtml(lastCommand) + '</div>';
+      html += '</div>';
+    }
+
+    hudSelectedEl.innerHTML = html;
+  }
+
+  function renderHudStats() {
+    // Right panel is the command card — left empty, just shows the console graphic
   }
 
   // Shared fixed-position tooltip for box items
@@ -3196,13 +3266,13 @@
   (function loadTerrainImage() {
     var img = new Image();
     img.onload = function () { terrainImage = img; };
-    img.src = '/data/island_map_cc.png';
+    img.src = '/data/map_bg.jpg';
   })();
 
   function drawBackground() {
     const { scale, offsetX, offsetY } = getTransform();
     worldCtx.clearRect(0, 0, worldCanvas.width, worldCanvas.height);
-    worldCtx.fillStyle = '#1858A0';
+    worldCtx.fillStyle = '#0a0a12';
     worldCtx.fillRect(0, 0, worldCanvas.width, worldCanvas.height);
     worldCtx.save();
     worldCtx.translate(offsetX, offsetY);
@@ -3218,7 +3288,8 @@
   }
 
   function agentDrawSize(agent) {
-    return agent.parentId ? SUBAGENT_DRAW_SIZE : DRAW_SIZE;
+    // Battle mode: all agents are marines at smaller size
+    return agent.parentId ? Math.round(MARINE_DRAW_SIZE * 0.75) : MARINE_DRAW_SIZE;
   }
 
 
@@ -3246,19 +3317,30 @@
       }
       if (anim && anim.type === 'despawn') continue; // handled by drawAnimations
 
-      var unitId = getRenderPokemonId(agent);
-      var unitMeta = scUnitData[unitId];
-      if (!unitMeta) continue;
+      // Battle mode: draw marines facing up-right with attack animations
+      var mData = BATTLE_DATA.marine;
+      var mSheet = scSpriteSheets[mData.spriteSheet];
+      if (!mSheet || !mSheet.complete || !mSheet.naturalWidth) continue;
 
-      var status = agent.status || 'Idle';
-      if (agent.isSleeping) status = 'Sleeping';
-      var animState = getAnimState(status, unitMeta);
-      var frameIndex = (status === 'Sleeping')
-        ? 0
-        : Math.floor(now / 150 + hashCode(agent.agentId)) % (unitMeta.frame[animState] || 1);
+      var mAttack = battleState.marineAttacks[agent.agentId];
+      var isAttacking = mAttack && mAttack.attacking;
 
-      var drawSize = entity.drawSize || DRAW_SIZE;
-      drawSCSprite(worldCtx, unitMeta, animState, frameIndex, Math.round(entity.x), Math.round(entity.y), drawSize, drawSize);
+      var srcX, srcY;
+      if (isAttacking) {
+        var aFrame = Math.min(mAttack.attackFrame, mData.attackFrames - 1);
+        srcX = mData.attack_upright.left[aFrame];
+        srcY = mData.attack_upright.top[aFrame];
+      } else {
+        srcX = mData.dock_upright.left[0];
+        srcY = mData.dock_upright.top[0];
+      }
+
+      var drawSize = MARINE_DRAW_SIZE;
+      worldCtx.drawImage(
+        mSheet,
+        srcX, srcY, mData.width, mData.height,
+        Math.round(entity.x), Math.round(entity.y), drawSize, drawSize
+      );
     }
 
     worldCtx.restore();
@@ -3578,6 +3660,203 @@
     URL.revokeObjectURL(url);
   }
 
+  // ── Battle system functions ──
+
+  function updateBattleTokens(agents) {
+    var total = 0;
+    for (var i = 0; i < agents.length; i++) {
+      total += (agents[i].totalTokens || 0);
+    }
+    var delta = total - lastKnownTokenTotal;
+    if (delta > 0) {
+      battleState.pendingSpawns += Math.floor(delta / TOKENS_PER_ZERGLING);
+    }
+    lastKnownTokenTotal = total;
+  }
+
+  function getMarinePositions(agents) {
+    var positions = [];
+    for (var i = 0; i < agents.length; i++) {
+      var entity = appState.entityById.get(agents[i].agentId);
+      if (!entity) continue;
+      positions.push({
+        agentId: agents[i].agentId,
+        x: entity.x + MARINE_DRAW_SIZE / 2,
+        y: entity.y + MARINE_DRAW_SIZE / 2
+      });
+    }
+    return positions;
+  }
+
+  function spawnZergling(now, marinePositions) {
+    if (marinePositions.length === 0) return null;
+    // Spawn from top-right corner area
+    var spawnX = 350 + Math.random() * 130;
+    var spawnY = Math.random() * 50;
+    // Pick a random marine as target
+    var target = marinePositions[Math.floor(Math.random() * marinePositions.length)];
+    return {
+      x: spawnX,
+      y: spawnY,
+      state: 'moving',
+      frame: Math.floor(Math.random() * BATTLE_DATA.zergling.movingFrames),
+      frameTimer: now,
+      speed: BATTLE_DATA.zergling.width > 0 ? (0.6 + Math.random() * 0.4) : 0.8,
+      targetX: target.x,
+      targetY: target.y,
+      targetAgentId: target.agentId,
+      deathFrame: 0,
+      deathTimer: 0
+    };
+  }
+
+  function updateBattle(now, agents) {
+    var marinePositions = getMarinePositions(agents);
+    if (marinePositions.length === 0) return;
+
+    // Spawn new zerglings from pending queue
+    if (battleState.pendingSpawns > 0 && battleState.zerglings.length < battleState.maxZerglings) {
+      if (now - battleState.lastSpawnTime >= battleState.spawnRate) {
+        var toSpawn = Math.min(battleState.pendingSpawns, 3); // spawn up to 3 at a time
+        for (var s = 0; s < toSpawn; s++) {
+          if (battleState.zerglings.length >= battleState.maxZerglings) break;
+          var z = spawnZergling(now, marinePositions);
+          if (z) {
+            battleState.zerglings.push(z);
+            battleState.pendingSpawns--;
+          }
+        }
+        battleState.lastSpawnTime = now;
+      }
+    }
+
+    // Update each zergling
+    var alive = [];
+    for (var i = 0; i < battleState.zerglings.length; i++) {
+      var zer = battleState.zerglings[i];
+
+      if (zer.state === 'moving') {
+        // Move toward target
+        var dx = zer.targetX - zer.x;
+        var dy = zer.targetY - zer.y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < ZERGLING_KILL_RANGE) {
+          // Check if the target marine can attack
+          var mAttack = battleState.marineAttacks[zer.targetAgentId];
+          if (!mAttack) {
+            mAttack = { cooldownUntil: 0, attacking: false, attackFrame: 0, attackStart: 0 };
+            battleState.marineAttacks[zer.targetAgentId] = mAttack;
+          }
+
+          if (!mAttack.attacking && now >= mAttack.cooldownUntil) {
+            // Marine starts attacking, zergling starts dying
+            mAttack.attacking = true;
+            mAttack.attackStart = now;
+            mAttack.attackFrame = 0;
+            zer.state = 'dying';
+            zer.deathFrame = 0;
+            zer.deathTimer = now;
+          }
+          // If marine is busy, zergling waits (stays in alive list)
+          alive.push(zer);
+        } else {
+          // Move toward target
+          var nx = dx / dist;
+          var ny = dy / dist;
+          zer.x += nx * zer.speed;
+          zer.y += ny * zer.speed;
+
+          // Advance animation frame
+          if (now - zer.frameTimer >= ZERGLING_FRAME_MS) {
+            zer.frame = (zer.frame + 1) % BATTLE_DATA.zergling.movingFrames;
+            zer.frameTimer = now;
+          }
+          alive.push(zer);
+        }
+      } else if (zer.state === 'dying') {
+        // Play death animation
+        if (now - zer.deathTimer >= ZERGLING_FRAME_MS) {
+          zer.deathFrame++;
+          zer.deathTimer = now;
+        }
+        if (zer.deathFrame >= BATTLE_DATA.zergling.deathFrames) {
+          zer.state = 'dead';
+          // Don't push to alive — it's removed
+        } else {
+          alive.push(zer);
+        }
+      }
+      // 'dead' zerglings are simply not pushed to alive
+    }
+    battleState.zerglings = alive;
+
+    // Update marine attack states
+    for (var agentId in battleState.marineAttacks) {
+      var ma = battleState.marineAttacks[agentId];
+      if (ma.attacking) {
+        var elapsed = now - ma.attackStart;
+        ma.attackFrame = Math.floor(elapsed / (MARINE_ATTACK_DURATION / BATTLE_DATA.marine.attackFrames));
+        if (elapsed >= MARINE_ATTACK_DURATION) {
+          ma.attacking = false;
+          ma.cooldownUntil = now + MARINE_ATTACK_COOLDOWN;
+        }
+      }
+    }
+  }
+
+  function drawBattleSprite(ctx, spriteSheetName, srcX, srcY, srcW, srcH, destX, destY, destW, destH) {
+    var sheet = scSpriteSheets[spriteSheetName];
+    if (!sheet || !sheet.complete || !sheet.naturalWidth) return;
+    ctx.drawImage(sheet, srcX, srcY, srcW, srcH, destX, destY, destW, destH);
+  }
+
+  function drawBattle(now) {
+    if (battleState.zerglings.length === 0) return;
+
+    var transform = getTransform();
+    var scale = transform.scale;
+    var offsetX = transform.offsetX;
+    var offsetY = transform.offsetY;
+
+    worldCtx.save();
+    worldCtx.translate(offsetX, offsetY);
+    worldCtx.scale(scale, scale);
+    worldCtx.imageSmoothingEnabled = false;
+
+    var zData = BATTLE_DATA.zergling;
+
+    for (var i = 0; i < battleState.zerglings.length; i++) {
+      var zer = battleState.zerglings[i];
+
+      if (zer.state === 'moving') {
+        var frame = zer.frame % zData.movingFrames;
+        var srcX = zData.moving_downleft.left[frame];
+        var srcY = zData.moving_downleft.top[frame];
+        drawBattleSprite(
+          worldCtx, zData.spriteSheet,
+          srcX, srcY, zData.width, zData.height,
+          Math.round(zer.x - ZERGLING_DRAW_SIZE / 2),
+          Math.round(zer.y - ZERGLING_DRAW_SIZE / 2),
+          ZERGLING_DRAW_SIZE, ZERGLING_DRAW_SIZE
+        );
+      } else if (zer.state === 'dying') {
+        var dFrame = Math.min(zer.deathFrame, zData.deathFrames - 1);
+        var dSrcX = zData.death.left[dFrame];
+        var dSrcY = zData.death.top[dFrame];
+        drawBattleSprite(
+          worldCtx, zData.spriteSheet,
+          dSrcX, dSrcY, zData.death.width, zData.death.height,
+          Math.round(zer.x - ZERGLING_DEATH_DRAW_SIZE / 2),
+          Math.round(zer.y - ZERGLING_DEATH_DRAW_SIZE / 2),
+          ZERGLING_DEATH_DRAW_SIZE, ZERGLING_DEATH_DRAW_SIZE
+        );
+      }
+    }
+
+    worldCtx.restore();
+  }
+
   function composeToScreen() {
     screenCtx.setTransform(1, 0, 0, 1, 0, 0);
     screenCtx.imageSmoothingEnabled = false;
@@ -3588,7 +3867,9 @@
     updateEntityMotion(now);
     drawBackground();
     const agents = filteredAgents();
+    updateBattle(now, agents);
     drawConnections(agents);
+    drawBattle(now);
     drawAgents(agents, now);
     drawAnimations(agents, now);
     composeToScreen();
@@ -3639,6 +3920,13 @@
       var related = e.relatedTarget;
       if (!related || !related.closest || !related.closest('.agent-sprite[data-agent-id]')) {
         hideMapTooltip();
+      }
+    });
+    overlayEl.addEventListener('click', function (e) {
+      var sprite = e.target.closest('.agent-sprite[data-agent-id]');
+      if (sprite) {
+        var agentId = sprite.getAttribute('data-agent-id');
+        selectAgentForHud(agentId);
       }
     });
     overlayEl.addEventListener('mouseleave', function () {
@@ -3813,7 +4101,11 @@
         return;
       }
       var card = e.target.closest('.poke-slot');
-      if (card) card.classList.toggle('expanded');
+      if (card) {
+        card.classList.toggle('expanded');
+        var cardAgentId = card.getAttribute('data-agent-id');
+        if (cardAgentId) selectAgentForHud(cardAgentId);
+      }
     });
     function handleUnboxClick(e) {
       var btn = e.target.closest('[data-action="unbox"]');
